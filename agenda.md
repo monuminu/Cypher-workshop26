@@ -1,4 +1,4 @@
-# Building Intelligent Agents — Tools, Orchestration & Governance
+# Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents
 
 ### Cypher 2026 · Sample One-Day Workshop Agenda
 

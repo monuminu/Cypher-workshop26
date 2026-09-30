@@ -1,4 +1,4 @@
-# Cypher 2026 · Agentic AI — Microsoft Agent Framework Workshop
+# Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents
 
 A **one-day, hands-on coding workshop** that teaches how to build, optimize, and
 operationalize AI agents with the open-source **[Microsoft Agent

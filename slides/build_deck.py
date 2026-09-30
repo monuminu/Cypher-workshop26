@@ -133,9 +133,9 @@ def title_slide(prs):
     s = new_slide(prs, dark=True)
     box = add_textbox(s, 0.6, 0.65, 8.8, 0.4)
     _set_run(box.text_frame.paragraphs[0].add_run(), "Cypher 2026", 18, WHITE, bold=True)
-    box = add_textbox(s, 0.6, 1.65, 8.8, 1.65)
+    box = add_textbox(s, 0.6, 1.5, 8.8, 2.2)
     _set_run(box.text_frame.paragraphs[0].add_run(),
-             "Agentic AI: Building, Optimizing\n& Operationalizing Agents", 30, WHITE, bold=True)
+             "Agent Harness for Enterprise:\nEngineering the Runtime for Reliable AI Agents", 30, WHITE, bold=True)
     box = add_textbox(s, 0.6, 3.9, 8.8, 0.9)
     _set_run(box.text_frame.paragraphs[0].add_run(), "Manoranjan Rajguru", 18, WHITE, bold=True)
     _set_run(box.text_frame.add_paragraph().add_run(), "Microsoft", 15, WHITE)
@@ -401,7 +401,7 @@ def build():
             add_caption(slide, 0.55, 5.25, 8.9, f"Cypher 2026  ·  {index:02d}",
                         size=9, color=GRAY, align=PP_ALIGN.RIGHT)
     props = prs.core_properties
-    props.title = "Cypher 2026 — Agentic AI"
+    props.title = "Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents"
     props.subject = "Microsoft Agent Framework workshop"
     props.author = "Manoranjan Rajguru"
     props.last_modified_by = "Manoranjan Rajguru"

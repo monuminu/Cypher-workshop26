@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Trace of the Underwriting Run · Aria</title>
+<style>
+  :root{--pur:#4C2A86;--pur2:#6A3FB5;--head1:#3C1F6E;--head2:#5B2E9E;
+    --teal:#0FA47F;--green:#107C10;--red:#D33438;--amber:#E68A00;--blue:#0078D4;
+    --ink:#1F2430;--muted:#6B7280;--bg:#F4F5F8;--card:#FFFFFF;--line:#E5E7EB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:#eef0f4;color:var(--ink);font-size:14px}
+  .top{display:flex;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--line);background:linear-gradient(100deg,var(--head1),var(--head2))}
+  .logo{font-weight:700;color:#fff}.logo b{color:#9be0cb}
+  .logo .s{color:#D9CCF2;font-size:12px;font-weight:400}
+  .bar2{margin-left:auto;display:flex;gap:9px;align-items:center}
+  a.back{color:#EDE4FB;text-decoration:none;font-size:13px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 13px;border-radius:9px;cursor:pointer}
+  button:hover{border-color:var(--pur2)}
+  button.primary{background:linear-gradient(135deg,var(--pur),var(--pur2));border:none;color:#fff}
+  button.tour{background:linear-gradient(135deg,var(--pur2),var(--blue));border:none;color:#fff}
+  .meta{display:flex;gap:20px;padding:12px 20px;border-bottom:1px solid var(--line);font-size:12.5px;flex-wrap:wrap;background:var(--card)}
+  .meta div span{color:var(--muted);display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+  .meta div b{font-size:14px}
+  .head{display:grid;grid-template-columns:330px 1fr 90px;padding:8px 20px;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--line);background:#f7f8fb}
+  .rows{padding:6px 20px 40px;background:var(--card)}
+  .row{display:grid;grid-template-columns:330px 1fr 90px;align-items:center;height:34px;border-bottom:1px solid #eef0f4;cursor:pointer}
+  .row:hover{background:#f5f2fb}
+  .name{display:flex;align-items:center;gap:7px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kind{font-size:9.5px;padding:1px 6px;border-radius:5px;font-weight:700}
+  .k-agent{background:#f0eafb;color:#6a3fb5}.k-llm{background:#eaf4fd;color:#0078D4}.k-tool{background:#fdf4e3;color:#a5670a}.k-retr{background:#eafaf5;color:#0c8a63}.k-chain{background:#f0eafb;color:#6a3fb5}
+  .track{position:relative;height:16px;margin:0 8px}
+  .span{position:absolute;height:16px;border-radius:4px;top:0;opacity:0;transition:opacity .3s}
+  .span.show{opacity:1}
+  .s-agent{background:linear-gradient(90deg,#6A3FB5,#4C2A86)}.s-llm{background:linear-gradient(90deg,#0078D4,#0a4f8a)}
+  .s-tool{background:linear-gradient(90deg,#E68A00,#b06600)}.s-retr{background:linear-gradient(90deg,#0FA47F,#0a7a5e)}.s-chain{background:linear-gradient(90deg,#8a6fc0,#5a3f90)}
+  .s-err{background:linear-gradient(90deg,#D33438,#a3282b)!important;box-shadow:0 0 0 1px #ff8f92}
+  .dur{text-align:right;font-family:Consolas,monospace;font-size:12px;color:var(--muted)}
+  .depth1{padding-left:18px}.depth2{padding-left:36px}
+  .detail{position:fixed;right:0;top:0;bottom:0;width:360px;background:var(--card);border-left:1px solid var(--line);transform:translateX(100%);transition:.25s;padding:20px;overflow:auto;box-shadow:-8px 0 30px rgba(20,20,50,.12)}
+  .detail.open{transform:none}
+  .detail h3{margin:0 0 4px}.detail .close{position:absolute;right:16px;top:14px;cursor:pointer;color:var(--muted)}
+  .kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .kv span{color:var(--muted)}.kv b{font-family:Consolas,monospace}
+  pre{background:#0f1226;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:11.5px;overflow:auto;color:#cfe0ff}
+  .err-badge{display:inline-block;background:#fdecec;color:var(--red);border:1px solid var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700}
+  #cap{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);max-width:min(1000px,92vw);background:rgba(24,14,52,.94);color:#fff;padding:16px 26px;border-radius:14px;font-size:20px;line-height:1.4;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .3s;z-index:60;pointer-events:none}
+  #cap.show{opacity:1}#cap .k{color:#c7a6ff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:5px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo">🔭 <b>Aria trace</b> <span class="s">— underwriting run observability</span></div>
+  <div class="bar2">
+    <button class="tour" id="tour">▶ Guided Tour</button>
+    <button id="voice">🔊 Voice: on</button>
+    <button class="primary" id="replay">▶ Replay</button>
+    <button id="instant">⤓ Full trace</button>
+    <button id="fs">⤢ Full screen</button>
+    <a class="back" href="index.html">← All demos</a>
+  </div>
+</div>
+<div class="meta">
+  <div><span>Trace ID</span><b>7f3a·c091·ae42</b></div>
+  <div><span>Name</span><b>refi_underwrite.run</b></div>
+  <div><span>Customer</span><b>Maya Sharma · CB-88241</b></div>
+  <div><span>Status</span><b id="m-status" style="color:var(--amber)">running…</b></div>
+  <div><span>Latency</span><b id="m-lat">—</b></div>
+  <div><span>Total tokens</span><b id="m-tok">—</b></div>
+  <div><span>Cost</span><b id="m-cost">—</b></div>
+  <div><span>Spans</span><b id="m-spans">0</b></div>
+</div>
+<div class="head"><div>Span</div><div>Timeline (0 – 4400 ms)</div><div class="dur">Duration</div></div>
+<div class="rows" id="rows"></div>
+<div class="detail" id="detail"><span class="close" id="close">✕</span><div id="detail-body"></div></div>
+<div id="cap"><span class="k" id="cap-k">Guided tour</span><span id="cap-t"></span></div>
+<script>
+const TourEngine=(()=>{let voiceOn=true,touring=false,cancelled=false;
+  const cap=document.getElementById('cap'),capT=document.getElementById('cap-t'),capK=document.getElementById('cap-k');
+  function setVoiceBtn(){const b=document.getElementById('voice');if(b)b.textContent='🔊 Voice: '+(voiceOn?'on':'off');}
+  function speak(t){return new Promise(res=>{if(!voiceOn||!('speechSynthesis'in window)){res();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.02;u.onend=res;u.onerror=res;
+      const vs=speechSynthesis.getVoices();const pref=vs.find(v=>/en-US|Samantha|Aria|Jenny|Google US/i.test(v.name+v.lang));if(pref)u.voice=pref;
+      speechSynthesis.speak(u);setTimeout(res,Math.max(2600,t.length*70));}catch(e){res();}});}
+  async function caption(kick,text,hold){capK.textContent=kick||'Guided tour';capT.textContent=text;cap.classList.add('show');
+    await Promise.race([speak(text),sleep(hold||Math.max(2400,text.length*46))]);if(!voiceOn)await sleep(250);}
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function enterFS(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(e){}}
+  async function run(steps,{fullscreen=true}={}){if(touring)return;touring=true;cancelled=false;
+    const tb=document.getElementById('tour');if(tb){tb.disabled=true;tb.textContent='● Touring…';}if(fullscreen)await enterFS();await sleep(500);
+    for(const s of steps){if(cancelled)break;if(s.run)await s.run();if(s.say)await caption(s.kick,s.say,s.hold);if(s.wait)await sleep(s.wait);}
+    cap.classList.remove('show');touring=false;if(tb){tb.disabled=false;tb.textContent='▶ Guided Tour';}}
+  function toggleVoice(){voiceOn=!voiceOn;setVoiceBtn();if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();}
+  if('speechSynthesis'in window)speechSynthesis.getVoices();
+  return {run,toggleVoice,sleep,isTouring:()=>touring};})();
+document.getElementById('voice').onclick=TourEngine.toggleVoice;
+document.getElementById('fs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen();};
+
+const TOTAL=4400;
+const SPANS=[
+ ['refi_underwrite.run','agent',0,0,4400,0,false],
+ ['plan.decompose','chain',1,40,320,180,false],
+ ['llm.plan (gpt-4o)','llm',2,80,260,180,false],
+ ['income.fabric_read','tool',1,380,300,0,false],
+ ['credit.bureau_read','retr',1,380,560,0,false],
+ ['market.rate_api','tool',1,970,720,0,true],
+ ['market.rate_retry','tool',1,1740,360,0,false],
+ ['calc.breakeven','chain',1,2140,240,0,false],
+ ['risk.fair_lending','tool',1,2400,300,0,false],
+ ['llm.reason (gpt-4o)','llm',2,2720,360,610,false],
+ ['compose.recommendation','chain',1,3120,1260,0,false],
+ ['llm.compose (gpt-4o)','llm',2,3180,1160,1140,false],
+ ['verify.output','tool',1,4360,20,0,false],
+];
+const KMAP={agent:['AGENT','k-agent','s-agent'],llm:['LLM','k-llm','s-llm'],tool:['TOOL','k-tool','s-tool'],retr:['RETRIEVE','k-retr','s-retr'],chain:['CHAIN','k-chain','s-chain']};
+const DETAILS={
+ 'market.rate_api':{err:'HTTP 503 · rate provider unavailable',in:'{ product:"auto-refi", region:"WA", term:60 }',out:'ServiceUnavailableError: retrying with backoff'},
+ 'credit.bureau_read':{in:'{ subject:"CB-88241", consent:"approved" }',out:'band: Very good (boundary) · score 742'},
+ 'risk.fair_lending':{in:'{ decision_features, protected_class:"masked" }',out:'fair-lending check PASS · no disparate impact flag'},
+ 'llm.compose (gpt-4o)':{in:'system + 1140 ctx tokens',out:'Recommendation: refinance to 5.4% fixed, 12mo → saves ~$310, payment $246 (meets constraints)'},
+};
+const rows=document.getElementById('rows');let timer=null;
+function build(){rows.innerHTML='';SPANS.forEach((s,i)=>{const [name,kind,depth,start,dur,tok,err]=s;const [klab,kcls,scls]=KMAP[kind];
+  const r=document.createElement('div');r.className='row';r.dataset.i=i;const left=start/TOTAL*100,w=Math.max(0.6,dur/TOTAL*100);
+  r.innerHTML=`<div class="name depth${depth}"><span class="kind ${kcls}">${klab}</span>${name}</div>
+    <div class="track"><div class="span ${scls} ${err?'s-err':''}" data-span style="left:${left}%;width:${w}%"></div></div>
+    <div class="dur">${dur} ms${err?' ⚠':''}</div>`;r.onclick=()=>openDetail(i);rows.appendChild(r);});}
+function openDetail(i){const [name,kind,depth,start,dur,tok,err]=SPANS[i];const d=DETAILS[name]||{};const body=document.getElementById('detail-body');
+  body.innerHTML=`<h3>${name}</h3><div style="color:var(--muted);font-size:12px;margin-bottom:14px">${KMAP[kind][0]} span</div>
+   ${err?`<p><span class="err-badge">ERROR</span> ${d.err||'span failed'}</p>`:''}
+   <div class="kv"><span>Start offset</span><b>${start} ms</b></div><div class="kv"><span>Duration</span><b>${dur} ms</b></div>
+   <div class="kv"><span>Tokens</span><b>${tok||'—'}</b></div><div class="kv"><span>Status</span><b style="color:${err?'var(--red)':'var(--teal)'}">${err?'ERROR':'OK'}</b></div>
+   ${d.in?`<p style="margin:14px 0 4px;color:var(--muted);font-size:11px;letter-spacing:.06em">INPUT</p><pre>${d.in}</pre>`:''}
+   ${d.out?`<p style="margin:14px 0 4px;color:var(--muted);font-size:11px;letter-spacing:.06em">OUTPUT</p><pre>${d.out}</pre>`:''}`;
+  document.getElementById('detail').classList.add('open');}
+document.getElementById('close').onclick=()=>document.getElementById('detail').classList.remove('open');
+function reveal(n){const spans=rows.querySelectorAll('[data-span]');for(let i=0;i<n;i++)spans[i].classList.add('show');
+  let tok=0,errs=0;for(let i=0;i<n;i++){tok+=SPANS[i][5];if(SPANS[i][6])errs++;}
+  document.getElementById('m-spans').textContent=n;document.getElementById('m-tok').textContent=tok?tok.toLocaleString():'—';
+  document.getElementById('m-cost').textContent=tok?('$'+(tok*0.0000075).toFixed(4)):'—';
+  if(n>=SPANS.length){document.getElementById('m-lat').textContent=TOTAL+' ms';const st=document.getElementById('m-status');
+    st.textContent=errs?`ok · ${errs} error span`:'ok';st.style.color=errs?'var(--amber)':'var(--teal)';}}
+function replay(){clearInterval(timer);build();let shown=0;document.getElementById('m-status').textContent='running…';document.getElementById('m-status').style.color='var(--amber)';document.getElementById('m-lat').textContent='—';document.getElementById('detail').classList.remove('open');
+  timer=setInterval(()=>{shown++;reveal(shown);if(shown>=SPANS.length)clearInterval(timer);},400);}
+function instant(){clearInterval(timer);build();reveal(SPANS.length);}
+document.getElementById('replay').onclick=replay;document.getElementById('instant').onclick=instant;
+build();replay();
+
+document.getElementById('tour').onclick=()=>{
+  TourEngine.run([
+    {say:"Everything Aria did to underwrite Maya's refinance is captured as a trace — a tree of timed spans, just like Langfuse or Phoenix.",kick:"06 · Observability",run:async()=>{replay();}},
+    {say:"The run starts with planning, then fans out to tool calls: reading her income, pulling her credit band.",wait:1400},
+    {say:"Here's the market-rate call — and it's red. That's the 503 error span, captured with its full input and stack.",run:async()=>{let n=0;while(document.getElementById('m-spans').textContent<7&&n<40){await TourEngine.sleep(150);n++;}openDetail(5);},hold:5600},
+    {say:"Right after it, the retry span succeeds. The trace shows exactly how the harness recovered, and how long it cost.",run:async()=>{await TourEngine.sleep(400);document.getElementById('detail').classList.remove('open');},hold:4600},
+    {say:"Then break-even, the fair-lending check, reasoning, and the final compose — every step timed, every token counted.",run:async()=>{let n=0;while(document.getElementById('m-spans').textContent<SPANS.length&&n<40){await TourEngine.sleep(150);n++;}},hold:5000},
+    {say:"Open the compose span and you see the actual recommendation: refinance to 5.4% fixed, payment $246 — within every constraint Maya set.",run:async()=>{openDetail(11);},hold:6000},
+    {say:"Latency, cost, tokens, and the one error — all in a single view. You can't run in production what you can't measure.",kick:"Takeaway",run:async()=>{document.getElementById('detail').classList.remove('open');},hold:5600},
+  ]);
+};
+</script>
+</body>
+</html>

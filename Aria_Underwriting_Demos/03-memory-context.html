@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Context &amp; Compaction · Aria</title>
+<style>
+  :root{--pur:#4C2A86;--pur2:#6A3FB5;--head1:#3C1F6E;--head2:#5B2E9E;
+    --teal:#0FA47F;--green:#107C10;--red:#D33438;--amber:#E68A00;--blue:#0078D4;
+    --ink:#1F2430;--muted:#6B7280;--bg:#F4F5F8;--card:#FFFFFF;--line:#E5E7EB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .hdr{background:linear-gradient(100deg,var(--head1),var(--head2) 60%,var(--pur2));color:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px}
+  .mark{width:34px;height:34px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--pur);font-weight:800}
+  .htxt b{font-size:15.5px}.htxt div{font-size:11.5px;color:#D9CCF2}
+  a.back{margin-left:auto;color:#EDE4FB;text-decoration:none;font-size:13px}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  h1{font-size:23px;margin:4px 0}.sub{color:var(--muted);margin-bottom:16px;font-size:15px}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;transition:.15s;box-shadow:0 1px 2px rgba(20,20,50,.05)}
+  button:hover{border-color:var(--pur2)}button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:linear-gradient(135deg,var(--pur),var(--pur2));border:none;color:#fff}
+  button.tour{background:linear-gradient(135deg,var(--pur2),var(--blue));border:none;color:#fff}
+  label.tog{font-size:13px;color:var(--muted);display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+  .layout{display:grid;grid-template-columns:1fr 300px;gap:18px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .ph{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .win{border:1px solid var(--line);border-radius:11px;background:#fbfbfe;padding:10px;height:430px;overflow:auto}
+  .msg{border-radius:9px;padding:9px 12px;margin-bottom:7px;font-size:13px;line-height:1.4;border:1px solid var(--line);position:relative;background:#fff}
+  .msg.sys{background:#f4eefc;border-color:#dcc9f4}
+  .msg.user{background:#eaf4fd;border-color:#c3e0f7}
+  .msg.tool{background:#fdf4e3;border-color:#f3dcb0;font-family:Consolas,monospace;font-size:12px}
+  .msg.assistant{background:#fff}
+  .msg.summary{background:#eafaf5;border-color:#a9e6d3}
+  .msg .role{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .msg .tok{position:absolute;right:8px;top:8px;font-size:10.5px;color:var(--muted)}
+  .msg.collapsing{animation:fade .5s forwards}
+  @keyframes fade{to{opacity:0;transform:translateX(-14px);height:0;padding:0;margin:0;overflow:hidden}}
+  .bignum{font-size:24px;font-weight:800}
+  .track{height:16px;border-radius:8px;background:#ece9f5;overflow:hidden;margin-top:6px;position:relative}
+  .fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .4s;width:0}
+  .fill.warn{background:linear-gradient(90deg,var(--amber),var(--red))}
+  .cap-line{position:absolute;top:-2px;height:20px;width:2px;background:var(--ink);opacity:.4}
+  .stat{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--line)}
+  .stat b{color:var(--ink)}
+  #cap{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);max-width:min(1000px,92vw);background:rgba(24,14,52,.94);color:#fff;padding:16px 26px;border-radius:14px;font-size:20px;line-height:1.4;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .3s;z-index:60;pointer-events:none}
+  #cap.show{opacity:1}#cap .k{color:#c7a6ff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .touring #manual{opacity:.4;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="mark">C</div><div class="htxt"><b>Aria — Refinance Underwriting</b><div>03 · State</div></div><a class="back" href="index.html">← All demos</a></div>
+<div class="wrap">
+  <h1>Context Window &amp; Memory Compaction</h1>
+  <div class="sub">Maya keeps adding constraints to the refinance. Every turn adds tokens; as the window nears its cap, the harness compacts early turns into a summary — staying coherent without blowing the budget.</div>
+  <div class="bar">
+    <button class="tour" id="tour">▶ Guided Tour</button>
+    <button id="voice">🔊 Voice: on</button>
+    <span id="manual" style="display:inline-flex;gap:9px;flex-wrap:wrap;align-items:center">
+      <button class="primary" id="turn">＋ Add a turn</button>
+      <button id="auto">⏩ Auto-fill</button>
+      <label class="tog"><input type="checkbox" id="compact" checked> auto-compaction</label>
+    </span>
+    <button id="reset">↺ Reset</button>
+    <button id="fs">⤢ Full screen</button>
+  </div>
+  <div class="layout">
+    <div class="panel"><div class="ph">Context window (underwriting working memory)</div><div class="win" id="win"></div></div>
+    <div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph">Token budget</div>
+        <div class="bignum" id="tk">0 <span style="font-size:14px;color:var(--muted)">/ 6000</span></div>
+        <div class="track"><div class="fill" id="fill"></div><div class="cap-line" style="left:83%"></div></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">compaction trigger at 83% (5000 tok)</div>
+      </div>
+      <div class="panel">
+        <div class="ph">Session stats</div>
+        <div class="stat"><span>Turns</span><b id="s-turns">0</b></div>
+        <div class="stat"><span>Live messages</span><b id="s-msgs">0</b></div>
+        <div class="stat"><span>Compactions</span><b id="s-comp">0</b></div>
+        <div class="stat"><span>Tokens reclaimed</span><b id="s-recl">0</b></div>
+        <div class="stat" style="border:none"><span>Constraints preserved</span><b id="s-facts">0</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="cap"><span class="k" id="cap-k">Guided tour</span><span id="cap-t"></span></div>
+<script>
+const TourEngine=(()=>{let voiceOn=true,touring=false,cancelled=false;
+  const cap=document.getElementById('cap'),capT=document.getElementById('cap-t'),capK=document.getElementById('cap-k');
+  function setVoiceBtn(){const b=document.getElementById('voice');if(b)b.textContent='🔊 Voice: '+(voiceOn?'on':'off');}
+  function speak(t){return new Promise(res=>{if(!voiceOn||!('speechSynthesis'in window)){res();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.02;u.onend=res;u.onerror=res;
+      const vs=speechSynthesis.getVoices();const pref=vs.find(v=>/en-US|Samantha|Aria|Jenny|Google US/i.test(v.name+v.lang));if(pref)u.voice=pref;
+      speechSynthesis.speak(u);setTimeout(res,Math.max(2600,t.length*70));}catch(e){res();}});}
+  async function caption(kick,text,hold){capK.textContent=kick||'Guided tour';capT.textContent=text;cap.classList.add('show');
+    await Promise.race([speak(text),sleep(hold||Math.max(2400,text.length*46))]);if(!voiceOn)await sleep(250);}
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function enterFS(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(e){}}
+  async function run(steps,{fullscreen=true}={}){if(touring)return;touring=true;cancelled=false;document.body.classList.add('touring');
+    const tb=document.getElementById('tour');if(tb){tb.disabled=true;tb.textContent='● Touring…';}if(fullscreen)await enterFS();await sleep(500);
+    for(const s of steps){if(cancelled)break;if(s.run)await s.run();if(s.say)await caption(s.kick,s.say,s.hold);if(s.wait)await sleep(s.wait);}
+    cap.classList.remove('show');document.body.classList.remove('touring');touring=false;if(tb){tb.disabled=false;tb.textContent='▶ Guided Tour';}}
+  function toggleVoice(){voiceOn=!voiceOn;setVoiceBtn();if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();}
+  if('speechSynthesis'in window)speechSynthesis.getVoices();
+  return {run,toggleVoice,sleep,isTouring:()=>touring};})();
+document.getElementById('voice').onclick=TourEngine.toggleVoice;
+document.getElementById('fs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen();};
+
+const CAP=6000,TRIGGER=5000;
+const USER=["Should I refinance my auto loan?","Keep the new payment under $260 a month.","It must be paid off before my apartment lease renews in 12 months.",
+  "Don't touch my high-yield savings.","Only fixed-rate offers, no variable.","Wait — what was my current rate again?",
+  "Add the early-payoff penalty to the math.","Summarize the final recommendation for me."];
+const win=document.getElementById('win');let S,autoTimer=null;
+function reset(){clearInterval(autoTimer);autoTimer=null;S={turns:0,tok:0,comp:0,recl:0,facts:0,msgs:[]};win.innerHTML='';
+  add('sys','SYSTEM','Aria underwriting agent · Maya Sharma #CB-88241 · tools: fabric.read, bureau.read, web.get, calc. Be precise, cite figures.',430,false);stats();meter();}
+function tokOf(t){return Math.round(t.length*0.9)+30;}
+function add(cls,role,text,tok,count=true){const m={cls,role,text,tok};S.msgs.push(m);
+  const d=document.createElement('div');d.className='msg '+cls;d.dataset.k=S.msgs.length-1;
+  d.innerHTML=`<div class="role">${role}</div>${text}<span class="tok">${tok}t</span>`;win.appendChild(d);win.scrollTop=win.scrollHeight;if(count)S.tok+=tok;}
+function meter(){const el=document.getElementById('fill');el.style.width=Math.min(100,S.tok/CAP*100)+'%';el.classList.toggle('warn',S.tok>=TRIGGER);
+  document.getElementById('tk').innerHTML=`${S.tok} <span style="font-size:14px;color:var(--muted)">/ ${CAP}</span>`;}
+function stats(){document.getElementById('s-turns').textContent=S.turns;document.getElementById('s-msgs').textContent=S.msgs.length;
+  document.getElementById('s-comp').textContent=S.comp;document.getElementById('s-recl').textContent=S.recl;document.getElementById('s-facts').textContent=S.facts;}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function turn(){S.turns++;const u=USER[(S.turns-1)%USER.length];add('user','MAYA',u,tokOf(u));await sleep(160);
+  add('tool','TOOL · fabric.read',`accounts + loan terms → 6.9% APR, bal $9,120`,Math.round(300+Math.random()*240));await sleep(160);
+  const a="Noted. Applying that constraint and recomputing the break-even against current terms.";add('assistant','ARIA',a,tokOf(a)+120);
+  stats();meter();if(document.getElementById('compact').checked&&S.tok>=TRIGGER){await compact();}}
+async function compact(){const keepTail=2,head=1;const midIdx=[];for(let i=head;i<S.msgs.length-keepTail;i++)midIdx.push(i);if(midIdx.length<2)return;
+  midIdx.forEach(i=>{const el=win.querySelector(`[data-k="${i}"]`);if(el)el.classList.add('collapsing');});await sleep(520);
+  let reclaimed=0;midIdx.forEach(i=>reclaimed+=S.msgs[i].tok);const facts=Math.round(midIdx.length*1.3);
+  const kept=[S.msgs[0],...S.msgs.slice(S.msgs.length-keepTail)];const summaryTok=Math.round(reclaimed*0.22);
+  const summary={cls:'summary',role:'SUMMARY (compacted '+midIdx.length+' msgs)',
+    text:`Underwriting so far: refinance auto loan (6.9%, $9,120, 14mo). Constraints — payment &lt; $260, payoff &lt; 12mo, no savings touch, fixed-rate only, include early-payoff penalty. [${facts} constraints retained]`,tok:summaryTok};
+  S.msgs=[kept[0],summary,...kept.slice(1)];S.tok=S.msgs.reduce((a,m)=>a+m.tok,0);S.comp++;S.recl+=reclaimed-summaryTok;S.facts+=facts;
+  win.innerHTML='';S.msgs.forEach((m,idx)=>{const d=document.createElement('div');d.className='msg '+m.cls;d.dataset.k=idx;
+    d.innerHTML=`<div class="role">${m.role}</div>${m.text}<span class="tok">${m.tok}t</span>`;win.appendChild(d);});win.scrollTop=win.scrollHeight;stats();meter();}
+document.getElementById('turn').onclick=turn;
+document.getElementById('auto').onclick=()=>{if(autoTimer){clearInterval(autoTimer);autoTimer=null;return;}autoTimer=setInterval(turn,1100);};
+document.getElementById('reset').onclick=reset;
+reset();
+
+document.getElementById('tour').onclick=()=>{reset();
+  TourEngine.run([
+    {say:"Underwriting isn't one question — it's a conversation. Maya keeps adding constraints, and every one has to stay in the agent's working memory.",kick:"03 · State"},
+    {say:"Each turn adds tokens: her message, a tool call to pull her accounts, and Aria's reply. Watch the token budget climb.",run:async()=>{for(let i=0;i<3;i++){await turn();await TourEngine.sleep(500);}}},
+    {say:"Payment under 260, paid off before her lease renews, don't touch savings, fixed-rate only — real constraints Aria must not forget.",run:async()=>{for(let i=0;i<2;i++){await turn();await TourEngine.sleep(500);}}},
+    {say:"Now the window is near its cap. A naive agent would overflow and start losing the earliest facts. The harness compacts instead.",run:async()=>{let n=0;while(S.tok<TRIGGER&&n<6){await turn();await TourEngine.sleep(450);n++;}},hold:5200},
+    {say:"Compaction summarizes the old turns into a single dense note — preserving every hard constraint — and reclaims the tokens.",hold:5600},
+    {say:"See the stats: turns kept flowing, but live messages dropped and thousands of tokens were reclaimed, with all constraints retained.",kick:"Takeaway",hold:6000},
+  ]);
+};
+</script>
+</body>
+</html>

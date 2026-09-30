@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · The Fair-Lending Release Gate · Aria</title>
+<style>
+  :root{--pur:#4C2A86;--pur2:#6A3FB5;--head1:#3C1F6E;--head2:#5B2E9E;
+    --teal:#0FA47F;--green:#107C10;--red:#D33438;--amber:#E68A00;--blue:#0078D4;
+    --ink:#1F2430;--muted:#6B7280;--bg:#F4F5F8;--card:#FFFFFF;--line:#E5E7EB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:#eef0f4;color:var(--ink)}
+  .top{display:flex;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--line);background:linear-gradient(100deg,var(--head1),var(--head2))}
+  .logo{font-weight:700;color:#fff}.logo b{color:#9cc9f5}.logo .s{color:#D9CCF2;font-size:12px;font-weight:400}
+  .bar2{margin-left:auto;display:flex;gap:9px;align-items:center}
+  a.back{color:#EDE4FB;text-decoration:none;font-size:13px}
+  .wrap{max-width:1200px;margin:0 auto;padding:20px}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer}
+  button:hover{border-color:var(--pur2)}button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:linear-gradient(135deg,var(--pur),var(--pur2));border:none;color:#fff}
+  button.tour{background:linear-gradient(135deg,var(--pur2),var(--blue));border:none;color:#fff}
+  select{font:inherit;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 12px}
+  .gate{border-radius:14px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:20px;border:1px solid var(--line);background:var(--card);transition:.4s;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .gate.pass{border-color:var(--green);background:linear-gradient(90deg,#f0faf6,#fff)}
+  .gate.block{border-color:var(--red);background:linear-gradient(90deg,#fdf2f2,#fff)}
+  .gate .verdict{font-size:32px;font-weight:800}
+  .gate.pass .verdict{color:var(--green)}.gate.block .verdict{color:var(--red)}
+  .gate .sub{color:var(--muted);font-size:14px}.gate .ic{font-size:42px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px;position:relative;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .kpi .lab{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .kpi .val{font-size:28px;font-weight:800;margin:6px 0 2px}
+  .kpi .thr{font-size:11.5px;color:var(--muted)}
+  .kpi.ok{border-color:#bfe3d5}.kpi.ok .val{color:var(--green)}
+  .kpi.bad{border-color:#f0cdcf}.kpi.bad .val{color:var(--red)}
+  .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:18px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .ph{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .suite{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .suite .nm{flex:1}
+  .suite .st{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .st.pass{background:#eafaf5;color:var(--teal)}.st.fail{background:#fdecec;color:var(--red)}.st.run{background:#fdf4e3;color:#a5670a}
+  .mini{height:6px;width:90px;border-radius:4px;background:#ece9f5;overflow:hidden}
+  .mini i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--blue))}.mini i.f{background:linear-gradient(90deg,var(--amber),var(--red))}
+  .hist{display:flex;align-items:flex-end;gap:6px;height:120px;margin-top:6px}
+  .hist .b{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#b7a3e0,#8a6fc0);position:relative}
+  .hist .b.cur{background:linear-gradient(180deg,var(--teal),var(--blue))}.hist .b.curbad{background:linear-gradient(180deg,var(--red),#a3282b)}
+  .hist .b span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted)}
+  #cap{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);max-width:min(1000px,92vw);background:rgba(24,14,52,.94);color:#fff;padding:16px 26px;border-radius:14px;font-size:20px;line-height:1.4;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .3s;z-index:60;pointer-events:none}
+  #cap.show{opacity:1}#cap .k{color:#c7a6ff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:5px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo">📊 <b>Aria eval·gate</b> <span class="s">— release gate from underwriting traces</span></div>
+  <div class="bar2">
+    <button class="tour" id="tour">▶ Guided Tour</button>
+    <button id="voice">🔊 Voice: on</button>
+    <button id="fs">⤢ Full screen</button>
+    <a class="back" href="index.html">← All demos</a>
+  </div>
+</div>
+<div class="wrap">
+  <div class="bar">
+    <span style="color:var(--muted);font-size:13px">Candidate policy:</span>
+    <select id="build">
+      <option value="good">v2.1 · retriever + prompt tune</option>
+      <option value="bad">v2.2 · aggressive cost cut</option>
+    </select>
+    <button class="primary" id="run">▶ Run eval suite (240 underwriting cases)</button>
+    <button id="reset">↺ Reset</button>
+    <span id="prog" style="color:var(--muted);font-size:13px"></span>
+  </div>
+  <div class="gate" id="gate">
+    <div class="ic" id="g-ic">⏳</div>
+    <div><div class="verdict" id="g-verdict">GATE: PENDING</div>
+      <div class="sub" id="g-sub">Run the suite to evaluate this recommendation policy against the release thresholds.</div></div>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="grid2">
+    <div class="panel"><div class="ph">Eval suites</div><div id="suites"></div></div>
+    <div class="panel"><div class="ph">Approval accuracy · last 8 releases</div><div class="hist" id="hist"></div></div>
+  </div>
+</div>
+<div id="cap"><span class="k" id="cap-k">Guided tour</span><span id="cap-t"></span></div>
+<script>
+const TourEngine=(()=>{let voiceOn=true,touring=false,cancelled=false;
+  const cap=document.getElementById('cap'),capT=document.getElementById('cap-t'),capK=document.getElementById('cap-k');
+  function setVoiceBtn(){const b=document.getElementById('voice');if(b)b.textContent='🔊 Voice: '+(voiceOn?'on':'off');}
+  function speak(t){return new Promise(res=>{if(!voiceOn||!('speechSynthesis'in window)){res();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.02;u.onend=res;u.onerror=res;
+      const vs=speechSynthesis.getVoices();const pref=vs.find(v=>/en-US|Samantha|Aria|Jenny|Google US/i.test(v.name+v.lang));if(pref)u.voice=pref;
+      speechSynthesis.speak(u);setTimeout(res,Math.max(2600,t.length*70));}catch(e){res();}});}
+  async function caption(kick,text,hold){capK.textContent=kick||'Guided tour';capT.textContent=text;cap.classList.add('show');
+    await Promise.race([speak(text),sleep(hold||Math.max(2400,text.length*46))]);if(!voiceOn)await sleep(250);}
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function enterFS(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(e){}}
+  async function run(steps,{fullscreen=true}={}){if(touring)return;touring=true;cancelled=false;
+    const tb=document.getElementById('tour');if(tb){tb.disabled=true;tb.textContent='● Touring…';}if(fullscreen)await enterFS();await sleep(500);
+    for(const s of steps){if(cancelled)break;if(s.run)await s.run();if(s.say)await caption(s.kick,s.say,s.hold);if(s.wait)await sleep(s.wait);}
+    cap.classList.remove('show');touring=false;if(tb){tb.disabled=false;tb.textContent='▶ Guided Tour';}}
+  function toggleVoice(){voiceOn=!voiceOn;setVoiceBtn();if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();}
+  if('speechSynthesis'in window)speechSynthesis.getVoices();
+  return {run,toggleVoice,sleep,isTouring:()=>touring};})();
+document.getElementById('voice').onclick=TourEngine.toggleVoice;
+document.getElementById('fs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen();};
+
+const THRESH={acc:90,fair:95,p95:5.0,cost:0.05};
+const PROFILE={
+  good:{acc:93.6,fair:97.4,p95:4.2,cost:0.041,suites:[93,97,91,96,94]},
+  bad: {acc:88.0,fair:90.2,p95:6.6,cost:0.026,suites:[89,74,88,90,84]},
+};
+const KPIS=[
+ {key:'acc',lab:'Approval accuracy',unit:'%',thr:'≥ 90%',hi:true},
+ {key:'fair',lab:'Fair-lending / faithfulness',unit:'%',thr:'≥ 95%',hi:true},
+ {key:'p95',lab:'p95 latency',unit:'s',thr:'≤ 5.0s',hi:false},
+ {key:'cost',lab:'Cost / decision',unit:'$',thr:'≤ $0.05',hi:false},
+];
+const SUITES=['Golden underwriting set (80)','Fair-lending / disparate-impact (60)','Affordability math correctness (40)','Adverse-action reasons (30)','Regression set (30)'];
+const HIST=[89,90,91,90,92,91,93];
+let cards={},suiteEls=[];
+function buildCards(){const c=document.getElementById('cards');c.innerHTML='';cards={};
+  KPIS.forEach(k=>{const d=document.createElement('div');d.className='kpi';
+    d.innerHTML=`<div class="lab">${k.lab}</div><div class="val" data-v>—</div><div class="thr">threshold ${k.thr}</div>`;c.appendChild(d);cards[k.key]=d;});}
+function buildSuites(){const s=document.getElementById('suites');s.innerHTML='';suiteEls=[];
+  SUITES.forEach(nm=>{const d=document.createElement('div');d.className='suite';
+    d.innerHTML=`<span class="nm">${nm}</span><div class="mini"><i style="width:0"></i></div><span class="st run">…</span>`;s.appendChild(d);suiteEls.push(d);});}
+function buildHist(cur,bad){const h=document.getElementById('hist');h.innerHTML='';const data=[...HIST,cur];
+  data.forEach((v,i)=>{const b=document.createElement('div');b.className='b'+(i===data.length-1?(bad?' curbad':' cur'):'');b.style.height=(v/100*100)+'%';
+    b.innerHTML=`<span>${i===data.length-1?'new':'r'+(i+1)}</span>`;b.title=v+'%';h.appendChild(b);});}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function fmt(k,v){return k.unit==='$'?('$'+v.toFixed(3)):k.unit==='s'?(v.toFixed(1)+'s'):(v.toFixed(1)+'%');}
+function pass(k,v){return k.hi?v>=THRESH[k.key]:v<=THRESH[k.key];}
+async function run(){document.getElementById('run').disabled=true;buildCards();buildSuites();
+  const prof=PROFILE[document.getElementById('build').value];const bad=document.getElementById('build').value==='bad';
+  const g=document.getElementById('gate');g.className='gate';document.getElementById('g-ic').textContent='⏳';
+  document.getElementById('g-verdict').textContent='GATE: EVALUATING…';document.getElementById('g-verdict').style.color='var(--ink)';
+  document.getElementById('g-sub').textContent='Streaming eval results from underwriting traces…';
+  for(let i=0;i<suiteEls.length;i++){const el=suiteEls[i];const bar=el.querySelector('i');const stt=el.querySelector('.st');
+    document.getElementById('prog').textContent=`running ${SUITES[i]}…`;const score=prof.suites[i];
+    for(let p=0;p<=score;p+=Math.max(2,Math.round(score/18))){bar.style.width=Math.min(p,score)+'%';await sleep(22);}bar.style.width=score+'%';
+    const ok=score>=(i===1?95:80);stt.className='st '+(ok?'pass':'fail');stt.textContent=ok?score+'% ✓':score+'% ✗';bar.classList.toggle('f',!ok);}
+  document.getElementById('prog').textContent='aggregating KPIs…';await sleep(300);
+  let allPass=true;
+  KPIS.forEach(k=>{const target=prof[k.key];const el=cards[k.key];const v=el.querySelector('[data-v]');let cur=0;const step=target/24;
+    const iv=setInterval(()=>{cur+=step;if(cur>=target){cur=target;clearInterval(iv);}v.textContent=fmt(k,cur);},18);
+    const ok=pass(k,target);if(!ok)allPass=false;el.className='kpi '+(ok?'ok':'bad');setTimeout(()=>{v.textContent=fmt(k,target);},500);});
+  buildHist(prof.acc,bad);await sleep(700);
+  if(allPass){g.className='gate pass';document.getElementById('g-ic').textContent='✅';document.getElementById('g-verdict').textContent='GATE: PASS';
+    document.getElementById('g-verdict').style.color='var(--green)';document.getElementById('g-sub').textContent='All 4 KPIs met · policy cleared to serve underwriting recommendations.';}
+  else{g.className='gate block';document.getElementById('g-ic').textContent='⛔';document.getElementById('g-verdict').textContent='GATE: BLOCKED';
+    document.getElementById('g-verdict').style.color='var(--red)';const failed=KPIS.filter(k=>!pass(k,prof[k.key])).map(k=>k.lab);
+    document.getElementById('g-sub').textContent='Release blocked — regressions: '+failed.join(', ')+'. Repair, don\'t ship.';}
+  document.getElementById('prog').textContent='done · 240 underwriting cases evaluated';document.getElementById('run').disabled=false;}
+function reset(){buildCards();buildSuites();buildHist(90,false);const g=document.getElementById('gate');g.className='gate';
+  document.getElementById('g-ic').textContent='⏳';document.getElementById('g-verdict').textContent='GATE: PENDING';document.getElementById('g-verdict').style.color='var(--ink)';
+  document.getElementById('g-sub').textContent='Run the suite to evaluate this recommendation policy against the release thresholds.';document.getElementById('prog').textContent='';}
+document.getElementById('run').onclick=run;document.getElementById('reset').onclick=reset;
+reset();
+
+document.getElementById('tour').onclick=async()=>{
+  document.getElementById('build').value='good';reset();
+  TourEngine.run([
+    {say:"Before any refinance recommendation policy goes live, it must clear an evaluation gate — built from the same traces we just saw.",kick:"07 · Reliability"},
+    {say:"Here's the tuned candidate, v2.1. We run 240 underwriting cases across five suites — including a dedicated fair-lending set.",run:async()=>{document.getElementById('run').click();},wait:1600},
+    {say:"Every KPI clears its threshold: approval accuracy, fair-lending, latency and cost. The gate turns green — cleared to ship.",run:async()=>{let n=0;while(document.getElementById('g-verdict').textContent.indexOf('PASS')<0&&document.getElementById('g-verdict').textContent.indexOf('BLOCK')<0&&n<60){await TourEngine.sleep(200);n++;}},hold:5600},
+    {say:"Now watch what happens with a cost-cutting build, v2.2 — it's cheaper and faster, which looks tempting.",run:async()=>{document.getElementById('build').value='bad';reset();await TourEngine.sleep(400);document.getElementById('run').click();},wait:1800},
+    {say:"But it quietly regresses the fair-lending suite below 95%. In a bank, that's not a tradeoff you're allowed to make.",run:async()=>{let n=0;while(document.getElementById('g-verdict').textContent.indexOf('BLOCK')<0&&n<60){await TourEngine.sleep(200);n++;}},hold:5600},
+    {say:"The gate blocks the release automatically and names the regression. Policy-as-code decides what ships — repair, don't deploy.",kick:"Takeaway",hold:6000},
+  ]);
+};
+</script>
+</body>
+</html>

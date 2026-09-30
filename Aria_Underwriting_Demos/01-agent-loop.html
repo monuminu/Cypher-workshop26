@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · The Underwriting Loop &amp; Hooks · Aria</title>
+<style>
+  :root{--pur:#4C2A86;--pur2:#6A3FB5;--head1:#3C1F6E;--head2:#5B2E9E;
+    --teal:#0FA47F;--green:#107C10;--red:#D33438;--amber:#E68A00;--blue:#0078D4;
+    --ink:#1F2430;--muted:#6B7280;--bg:#F4F5F8;--card:#FFFFFF;--line:#E5E7EB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .hdr{background:linear-gradient(100deg,var(--head1),var(--head2) 60%,var(--pur2));color:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px}
+  .mark{width:34px;height:34px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--pur);font-weight:800}
+  .htxt b{font-size:15.5px}.htxt div{font-size:11.5px;color:#D9CCF2}
+  a.back{margin-left:auto;color:#EDE4FB;text-decoration:none;font-size:13px}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  h1{font-size:23px;margin:4px 0}.sub{color:var(--muted);margin-bottom:16px;font-size:15px}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;transition:.15s;box-shadow:0 1px 2px rgba(20,20,50,.05)}
+  button:hover{border-color:var(--pur2)} button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:linear-gradient(135deg,var(--pur),var(--pur2));border:none;color:#fff}
+  button.tour{background:linear-gradient(135deg,var(--pur2),var(--blue));border:none;color:#fff}
+  .layout{display:grid;grid-template-columns:1.12fr .88fr;gap:18px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .ph{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  .hook{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;margin-bottom:7px;border:1px solid var(--line);background:#fafafe;transition:.2s}
+  .hook.active{border-color:var(--teal);background:#eafaf5;box-shadow:0 0 0 1px var(--teal) inset}
+  .hook.done{opacity:.5}
+  .hk-ic{width:25px;height:25px;border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700;background:#f0eafb;color:var(--pur2)}
+  .hook.active .hk-ic{background:var(--teal);color:#fff}
+  .hk-name{font-weight:600;font-size:13.5px}.hk-desc{font-size:11.5px;color:var(--muted)}
+  .gauges{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .g{background:#fafafe;border:1px solid var(--line);border-radius:10px;padding:11px}
+  .g .lab{font-size:10.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .g .val{font-size:19px;font-weight:800;margin:3px 0}
+  .track{height:7px;border-radius:6px;background:#ece9f5;overflow:hidden}
+  .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width .35s}
+  .fill.warn{background:linear-gradient(90deg,var(--amber),var(--red))}
+  .log{font-family:Consolas,"SF Mono",monospace;font-size:12px;background:#0f1226;color:#dfe3f5;border:1px solid var(--line);border-radius:10px;padding:11px;height:210px;overflow:auto;line-height:1.7}
+  .log .t{color:#8b90b5}.log .ok{color:#3ad29f}.log .warn{color:#ffb454}.log .err{color:#ff6b6e}.log .info{color:#69b7ff}
+  .badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:700}
+  .badge.run{background:#eafaf5;color:var(--teal);border:1px solid var(--teal)}
+  .badge.kill{background:#fdecec;color:var(--red);border:1px solid var(--red)}
+  .badge.done{background:#f0eafb;color:var(--pur2);border:1px solid var(--pur2)}
+  /* guided tour */
+  #cap{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);max-width:min(1000px,92vw);
+    background:rgba(24,14,52,.94);color:#fff;padding:16px 26px;border-radius:14px;font-size:20px;line-height:1.4;
+    text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .3s;z-index:60;pointer-events:none}
+  #cap.show{opacity:1}
+  #cap .k{color:#c7a6ff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .touring #manual{opacity:.4;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="mark">C</div>
+  <div class="htxt"><b>Aria — Refinance Underwriting</b><div>01 · The Control Loop</div></div>
+  <a class="back" href="index.html">← All demos</a>
+</div>
+<div class="wrap">
+  <h1>The Underwriting Loop as an Event Pipeline</h1>
+  <div class="sub">To underwrite Maya's refinance, Aria iterates. Each step runs the model's proposed action through 8 lifecycle hooks and hard budgets — control belongs to the harness, not the model.</div>
+  <div class="bar">
+    <button class="tour" id="tour">▶ Guided Tour</button>
+    <button id="voice">🔊 Voice: on</button>
+    <span id="manual" style="display:inline-flex;gap:9px;flex-wrap:wrap">
+      <button class="primary" id="step">▶ Step once</button>
+      <button id="run">⏩ Auto-run</button>
+      <button id="runaway">☠ Trigger runaway</button>
+    </span>
+    <button id="reset">↺ Reset</button>
+    <button id="fs">⤢ Full screen</button>
+    <span id="state" class="badge done">IDLE</span>
+  </div>
+  <div class="layout">
+    <div class="panel">
+      <div class="ph">Lifecycle hooks · one underwriting step</div>
+      <div id="hooks"></div>
+    </div>
+    <div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph">Budgets</div>
+        <div class="gauges">
+          <div class="g"><div class="lab">Steps</div><div class="val" id="v-step">0 / 12</div><div class="track"><div class="fill" id="f-step" style="width:0"></div></div></div>
+          <div class="g"><div class="lab">Tokens</div><div class="val" id="v-tok">0 / 8000</div><div class="track"><div class="fill" id="f-tok" style="width:0"></div></div></div>
+          <div class="g"><div class="lab">Tool calls</div><div class="val" id="v-tool">0 / 20</div><div class="track"><div class="fill" id="f-tool" style="width:0"></div></div></div>
+          <div class="g"><div class="lab">Wall-clock</div><div class="val" id="v-time">0.0s / 30s</div><div class="track"><div class="fill" id="f-time" style="width:0"></div></div></div>
+        </div>
+      </div>
+      <div class="panel"><div class="ph">Event log</div><div class="log" id="log"></div></div>
+    </div>
+  </div>
+</div>
+<div id="cap"><span class="k" id="cap-k">Guided tour</span><span id="cap-t"></span></div>
+<script>
+/* ---------- guided-tour engine (shared across demos) ---------- */
+const TourEngine=(()=>{
+  let voiceOn=true, touring=false, cancelled=false;
+  const cap=document.getElementById('cap'),capT=document.getElementById('cap-t'),capK=document.getElementById('cap-k');
+  function setVoiceBtn(){const b=document.getElementById('voice');if(b)b.textContent='🔊 Voice: '+(voiceOn?'on':'off');}
+  function speak(t){return new Promise(res=>{
+    if(!voiceOn||!('speechSynthesis'in window)){res();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);
+      u.rate=1.02;u.pitch=1;u.onend=res;u.onerror=res;
+      const vs=speechSynthesis.getVoices();const pref=vs.find(v=>/en-US|en_GB|Samantha|Aria|Jenny|Google US/i.test(v.name+v.lang));
+      if(pref)u.voice=pref;speechSynthesis.speak(u);
+      setTimeout(res,Math.max(2600,t.length*70));// safety
+    }catch(e){res();}
+  });}
+  async function caption(kick,text,hold){
+    capK.textContent=kick||'Guided tour';capT.textContent=text;cap.classList.add('show');
+    await Promise.race([speak(text), sleep(hold||Math.max(2400,text.length*46))]);
+    if(!voiceOn) await sleep(250);
+  }
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function enterFS(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(e){}}
+  async function run(steps,{fullscreen=true}={}){
+    if(touring)return;touring=true;cancelled=false;document.body.classList.add('touring');
+    const tb=document.getElementById('tour');if(tb){tb.disabled=true;tb.textContent='● Touring…';}
+    if(fullscreen)await enterFS();
+    await sleep(500);
+    for(const s of steps){
+      if(cancelled)break;
+      if(s.run)await s.run();
+      if(s.say)await caption(s.kick,s.say,s.hold);
+      if(s.wait)await sleep(s.wait);
+    }
+    cap.classList.remove('show');
+    document.body.classList.remove('touring');touring=false;
+    if(tb){tb.disabled=false;tb.textContent='▶ Guided Tour';}
+  }
+  function toggleVoice(){voiceOn=!voiceOn;setVoiceBtn();if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();}
+  function stop(){cancelled=true;if('speechSynthesis'in window)speechSynthesis.cancel();cap.classList.remove('show');}
+  if('speechSynthesis'in window){speechSynthesis.onvoiceschanged=()=>{};speechSynthesis.getVoices();}
+  return {run,toggleVoice,caption,sleep,stop,isTouring:()=>touring};
+})();
+document.getElementById('voice').onclick=TourEngine.toggleVoice;
+document.getElementById('fs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen();};
+
+/* ---------- demo logic ---------- */
+const HOOKS=[
+ ["1","onStepStart","begin step · snapshot underwriting state"],
+ ["2","preModel","inject accounts + rates context, trim to budget"],
+ ["3","onModelResponse","parse tool call / final recommendation"],
+ ["4","preToolUse","policy check + approval gate (bureau pull)"],
+ ["5","onToolResult","capture output · update decision state"],
+ ["6","postModel","verify numbers · detect drift"],
+ ["7","onStepEnd","emit trace span"],
+ ["8","checkBudgets","stop-condition evaluator"],
+];
+const CAPS={step:12,tok:8000,tool:20,time:30};
+let S,timer=null,runawayMode=false;
+const hooksEl=document.getElementById('hooks');
+HOOKS.forEach(h=>{const d=document.createElement('div');d.className='hook';d.dataset.h=h[0];
+  d.innerHTML=`<div class="hk-ic">${h[0]}</div><div><div class="hk-name">${h[1]}</div><div class="hk-desc">${h[2]}</div></div>`;hooksEl.appendChild(d);});
+const L=document.getElementById('log');
+function log(cls,msg){const s=S?S.time.toFixed(1):'0.0';L.insertAdjacentHTML('beforeend',`<div><span class="t">[${s.padStart(4)}s]</span> <span class="${cls}">${msg}</span></div>`);L.scrollTop=L.scrollHeight;}
+function setState(t,c){const e=document.getElementById('state');e.textContent=t;e.className='badge '+c;}
+function reset(){clearInterval(timer);timer=null;runawayMode=false;
+  S={step:0,tok:0,tool:0,time:0,done:false,killed:false};
+  L.innerHTML='';document.querySelectorAll('.hook').forEach(h=>h.className='hook');
+  setState('IDLE','done');draw();log('info','Aria harness ready · underwriting policy loaded · budgets armed');
+  document.getElementById('step').disabled=false;document.getElementById('run').disabled=false;}
+function draw(){const pct=(a,b)=>Math.min(100,a/b*100);
+  const set=(v,f,txt,a,b)=>{document.getElementById(v).textContent=txt;const el=document.getElementById(f);el.style.width=pct(a,b)+'%';el.classList.toggle('warn',pct(a,b)>75);};
+  set('v-step','f-step',`${S.step} / ${CAPS.step}`,S.step,CAPS.step);
+  set('v-tok','f-tok',`${S.tok} / ${CAPS.tok}`,S.tok,CAPS.tok);
+  set('v-tool','f-tool',`${S.tool} / ${CAPS.tool}`,S.tool,CAPS.tool);
+  set('v-time','f-time',`${S.time.toFixed(1)}s / ${CAPS.time}s`,S.time,CAPS.time);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+const TOOLS=["fabric.read(accounts)","bureau.read(credit_band)","web.get(market_rates)","calc.breakeven()","risk.score()"];
+async function fireHooks(){const hs=document.querySelectorAll('.hook');
+  for(let i=0;i<hs.length;i++){hs.forEach(h=>h.classList.remove('active'));hs[i].classList.add('active');
+    await sleep(runawayMode?70:140);
+    if(i===2){log('info',`model → tool_call( ${TOOLS[(S.step-1)%TOOLS.length]} )`);}
+    if(i===3){const bureau=(S.step-1)%TOOLS.length===1;
+      if(bureau){log('warn','preToolUse → ESCALATE  credit-bureau pull · human approval required');}
+      else{log('ok','preToolUse → ALLOW  scope=read · in-policy');}}
+    hs[i].classList.add('done');}
+  hs.forEach(h=>h.classList.remove('active','done'));}
+async function step(){if(S.done||S.killed)return;document.getElementById('step').disabled=true;setState('RUNNING','run');
+  S.step++;S.tool+=1;S.tok+=Math.round(320+Math.random()*260);S.time+=runawayMode?0.6:(1.4+Math.random()*1.2);
+  await fireHooks();draw();
+  if(S.tok>=CAPS.tok||S.step>=CAPS.step||S.tool>=CAPS.tool||S.time>=CAPS.time){
+    S.killed=true;clearInterval(timer);timer=null;
+    log('err','checkBudgets → BUDGET EXCEEDED · kill-switch engaged, underwriting loop terminated');
+    setState('KILLED','kill');finishUI();return;}
+  if(!runawayMode&&S.step>=4&&Math.random()>0.55){S.done=true;clearInterval(timer);timer=null;
+    log('ok','onModelResponse → FINAL · recommendation ready · stop condition = done');setState('COMPLETE','done');finishUI();return;}
+  log('info',`step ${S.step} complete · underwriting converging…`);
+  if(!timer)document.getElementById('step').disabled=false;}
+function finishUI(){document.getElementById('step').disabled=true;document.getElementById('run').disabled=true;}
+document.getElementById('step').onclick=step;
+document.getElementById('run').onclick=()=>{if(timer){clearInterval(timer);timer=null;return;}timer=setInterval(()=>{if(!S.done&&!S.killed)step();},900);};
+document.getElementById('runaway').onclick=()=>{reset();runawayMode=true;log('warn','injected: non-converging loop (model keeps calling tools)');timer=setInterval(()=>{if(!S.killed)step();},430);};
+document.getElementById('reset').onclick=reset;
+reset();
+
+/* ---------- the guided tour script ---------- */
+document.getElementById('tour').onclick=()=>{
+  reset();
+  TourEngine.run([
+    {say:"Maya asks Aria: should she refinance her auto loan? To answer safely, Aria doesn't call the model once — it runs an underwriting loop.",kick:"01 · The control loop"},
+    {say:"Every step passes the model's proposed action through eight lifecycle hooks. The model proposes; the harness disposes.",run:async()=>{}},
+    {say:"Watch one step. Hooks fire in order — inject context, parse the tool call, and critically, the permission gate.",run:async()=>{await step();}},
+    {say:"There — pulling the credit bureau is high-impact, so preToolUse escalates it for human approval before it ever runs.",run:async()=>{await step();}},
+    {say:"Meanwhile the harness meters everything: steps, tokens, tool calls and wall-clock. These budgets are hard limits.",run:async()=>{await step();}},
+    {say:"Normally the loop converges and stops on a real recommendation. But what if the model never converges?",run:async()=>{if(!S.done&&!S.killed)await step();}},
+    {say:"Let's inject a runaway loop — the model keeps calling tools forever.",run:async()=>{document.getElementById('runaway').click();},wait:600},
+    {say:"The budget evaluator catches it. The moment a cap is breached, the kill-switch fires and the loop is terminated — deterministically, in code.",run:async()=>{
+        // wait until killed
+        let n=0;while(!S.killed&&n<60){await TourEngine.sleep(200);n++;}},hold:5200},
+    {say:"That's the beating heart of agency: a governed loop with budgets and a kill-switch, so a stochastic model can be run safely in a bank.",kick:"Takeaway",hold:5200},
+  ]);
+};
+</script>
+</body>
+</html>

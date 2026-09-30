@@ -1,0 +1,57 @@
+{
+  "_readme": "Golden evaluation set for the Contoso Retail support bot (M6). Each case pairs a customer question with the ground truth: the answer we expect, the tools we require, the facts that must appear, and the facts that must NOT be invented. Authoring rules: expected_tools lists the MINIMUM tools required (extra calls are tolerated, missing ones are not), and must_not_mention holds only tokens that cannot appear inside a legitimate negation.",
+  "cases": [
+    {
+      "id": "status_shipped",
+      "query": "Where is my order CR-1001?",
+      "expected_output": "Order CR-1001 has shipped with FleetEx and is estimated to arrive on 2026-03-14.",
+      "expected_tools": [{"name": "lookup_order", "arguments": {"order_id": "CR-1001"}}],
+      "must_mention": [["cr-1001"], ["shipped"], ["fleetex"], ["2026-03-14", "march 14"]],
+      "must_not_mention": []
+    },
+    {
+      "id": "status_lowercase_id",
+      "query": "Any update on order #cr-1044?",
+      "expected_output": "Order CR-1044 was delivered on 2026-03-09.",
+      "expected_tools": [{"name": "lookup_order", "arguments": {"order_id": "CR-1044"}}],
+      "must_mention": [["cr-1044"], ["delivered"], ["2026-03-09", "march 9"]],
+      "must_not_mention": []
+    },
+    {
+      "id": "return_eligible",
+      "query": "I want to return order CR-1133, is that allowed?",
+      "expected_output": "Yes - CR-1133 was delivered 20 days ago, inside the 30-day return window, so it can be returned.",
+      "expected_tools": [{"name": "check_return_eligibility", "arguments": {"order_id": "CR-1133"}}],
+      "must_mention": [["cr-1133"], ["eligible", "can be returned", "yes"], ["30-day", "30 day"]],
+      "must_not_mention": []
+    },
+    {
+      "id": "return_window_expired",
+      "query": "Can I return CR-1077? I bought it a while ago.",
+      "expected_output": "No - CR-1077 was delivered on 2026-01-05, 66 days ago, which is outside the 30-day return window under policy CONTOSO-RET-30.",
+      "expected_tools": [{"name": "check_return_eligibility", "arguments": {"order_id": "CR-1077"}}],
+      "must_mention": [["cr-1077"], ["not eligible", "outside", "past the", "expired", "cannot be returned"], ["30-day", "30 day"]],
+      "must_not_mention": []
+    },
+    {
+      "id": "return_excluded_category",
+      "query": "I'd like to return the gift card on order CR-1102.",
+      "expected_output": "No - gift cards are excluded from returns under policy CONTOSO-RET-30, even though CR-1102 was delivered recently.",
+      "expected_tools": [{"name": "check_return_eligibility", "arguments": {"order_id": "CR-1102"}}],
+      "must_mention": [["cr-1102"], ["gift card"], ["not eligible", "cannot be returned", "excluded", "non-returnable"]],
+      "must_not_mention": []
+    },
+    {
+      "id": "unknown_order_must_refuse",
+      "query": "What's the status of order CR-9999?",
+      "expected_output": "There is no record of order CR-9999. Please double-check the number or contact the Contoso support team.",
+      "expected_tools": [{"name": "lookup_order", "arguments": {"order_id": "CR-9999"}}],
+      "must_mention": [
+        ["cr-9999"],
+        ["couldn't find", "could not find", "couldn't locate", "could not locate", "no record", "not found", "no information", "unable to locate", "unable to find", "wasn't able to find", "doesn't appear", "does not appear", "no order"],
+        ["support", "team", "agent", "representative", "escalate"]
+      ],
+      "must_not_mention": ["fleetex", "railpost", "estimated delivery"]
+    }
+  ]
+}

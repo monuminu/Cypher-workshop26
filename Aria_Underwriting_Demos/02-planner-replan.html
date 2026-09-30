@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Plan the Underwrite · Re-plan · Aria</title>
+<style>
+  :root{--pur:#4C2A86;--pur2:#6A3FB5;--head1:#3C1F6E;--head2:#5B2E9E;
+    --teal:#0FA47F;--green:#107C10;--red:#D33438;--amber:#E68A00;--blue:#0078D4;
+    --ink:#1F2430;--muted:#6B7280;--bg:#F4F5F8;--card:#FFFFFF;--line:#E5E7EB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .hdr{background:linear-gradient(100deg,var(--head1),var(--head2) 60%,var(--pur2));color:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px}
+  .mark{width:34px;height:34px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--pur);font-weight:800}
+  .htxt b{font-size:15.5px}.htxt div{font-size:11.5px;color:#D9CCF2}
+  a.back{margin-left:auto;color:#EDE4FB;text-decoration:none;font-size:13px}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  h1{font-size:23px;margin:4px 0}.sub{color:var(--muted);margin-bottom:16px;font-size:15px}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;transition:.15s;box-shadow:0 1px 2px rgba(20,20,50,.05)}
+  button:hover{border-color:var(--pur2)}button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:linear-gradient(135deg,var(--pur),var(--pur2));border:none;color:#fff}
+  button.tour{background:linear-gradient(135deg,var(--pur2),var(--blue));border:none;color:#fff}
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:18px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .ph{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  svg{width:100%;height:auto;display:block}
+  .log{font-family:Consolas,monospace;font-size:12px;background:#0f1226;color:#dfe3f5;border:1px solid var(--line);border-radius:10px;padding:11px;height:330px;overflow:auto;line-height:1.7}
+  .log .ok{color:#3ad29f}.log .err{color:#ff6b6e}.log .warn{color:#ffb454}.log .info{color:#69b7ff}.log .t{color:#8b90b5}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+  #cap{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);max-width:min(1000px,92vw);background:rgba(24,14,52,.94);color:#fff;padding:16px 26px;border-radius:14px;font-size:20px;line-height:1.4;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .3s;z-index:60;pointer-events:none}
+  #cap.show{opacity:1}#cap .k{color:#c7a6ff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .touring #manual{opacity:.4;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="mark">C</div><div class="htxt"><b>Aria — Refinance Underwriting</b><div>02 · Orchestration</div></div><a class="back" href="index.html">← All demos</a></div>
+<div class="wrap">
+  <h1>Plan the Underwrite · Re-plan When a Step Fails</h1>
+  <div class="sub">Aria decomposes "should Maya refinance?" into a checkable DAG. When the live market-rate API fails, the harness repairs that sub-tree locally — it does not restart the whole underwrite.</div>
+  <div class="bar">
+    <button class="tour" id="tour">▶ Guided Tour</button>
+    <button id="voice">🔊 Voice: on</button>
+    <span id="manual" style="display:inline-flex;gap:9px;flex-wrap:wrap">
+      <button class="primary" id="run">▶ Execute plan</button>
+      <button id="fail">⚡ Inject rate-API 503</button>
+    </span>
+    <button id="reset">↺ Reset</button>
+    <button id="fs">⤢ Full screen</button>
+  </div>
+  <div class="layout">
+    <div class="panel">
+      <div class="ph">Underwriting execution DAG</div>
+      <svg id="dag" viewBox="0 0 760 470"></svg>
+      <div class="legend">
+        <span><i class="sw" style="background:#e3ddf2"></i>pending</span>
+        <span><i class="sw" style="background:var(--teal)"></i>running</span>
+        <span><i class="sw" style="background:var(--green)"></i>done</span>
+        <span><i class="sw" style="background:var(--red)"></i>failed</span>
+        <span><i class="sw" style="background:var(--amber)"></i>repair (new step)</span>
+      </div>
+    </div>
+    <div class="panel"><div class="ph">Planner log</div><div class="log" id="log"></div></div>
+  </div>
+</div>
+<div id="cap"><span class="k" id="cap-k">Guided tour</span><span id="cap-t"></span></div>
+<script>
+const TourEngine=(()=>{let voiceOn=true,touring=false,cancelled=false;
+  const cap=document.getElementById('cap'),capT=document.getElementById('cap-t'),capK=document.getElementById('cap-k');
+  function setVoiceBtn(){const b=document.getElementById('voice');if(b)b.textContent='🔊 Voice: '+(voiceOn?'on':'off');}
+  function speak(t){return new Promise(res=>{if(!voiceOn||!('speechSynthesis'in window)){res();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.02;u.onend=res;u.onerror=res;
+      const vs=speechSynthesis.getVoices();const pref=vs.find(v=>/en-US|Samantha|Aria|Jenny|Google US/i.test(v.name+v.lang));if(pref)u.voice=pref;
+      speechSynthesis.speak(u);setTimeout(res,Math.max(2600,t.length*70));}catch(e){res();}});}
+  async function caption(kick,text,hold){capK.textContent=kick||'Guided tour';capT.textContent=text;cap.classList.add('show');
+    await Promise.race([speak(text),sleep(hold||Math.max(2400,text.length*46))]);if(!voiceOn)await sleep(250);}
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function enterFS(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(e){}}
+  async function run(steps,{fullscreen=true}={}){if(touring)return;touring=true;cancelled=false;document.body.classList.add('touring');
+    const tb=document.getElementById('tour');if(tb){tb.disabled=true;tb.textContent='● Touring…';}if(fullscreen)await enterFS();await sleep(500);
+    for(const s of steps){if(cancelled)break;if(s.run)await s.run();if(s.say)await caption(s.kick,s.say,s.hold);if(s.wait)await sleep(s.wait);}
+    cap.classList.remove('show');document.body.classList.remove('touring');touring=false;if(tb){tb.disabled=false;tb.textContent='▶ Guided Tour';}}
+  function toggleVoice(){voiceOn=!voiceOn;setVoiceBtn();if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();}
+  if('speechSynthesis'in window)speechSynthesis.getVoices();
+  return {run,toggleVoice,sleep,isTouring:()=>touring};})();
+document.getElementById('voice').onclick=TourEngine.toggleVoice;
+document.getElementById('fs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen();};
+
+const NS="http://www.w3.org/2000/svg";
+let nodes,edges,st,injectFail=false,busy=false;
+function initPlan(){
+  nodes=[
+   {id:'goal',x:300,y:20,w:170,label:'GOAL: refinance decision',type:'goal'},
+   {id:'a',x:60,y:120,w:170,label:'1 · Pull income / cash-flow'},
+   {id:'b',x:300,y:120,w:170,label:'2 · Pull credit band'},
+   {id:'c',x:540,y:120,w:170,label:'3 · Fetch market rates'},
+   {id:'d',x:300,y:250,w:170,label:'4 · Compute break-even'},
+   {id:'e',x:300,y:360,w:170,label:'5 · Risk & compose'},
+  ];
+  edges=[['goal','a'],['goal','b'],['goal','c'],['a','d'],['b','d'],['c','d'],['d','e']];
+}
+const COL={pending:'#e3ddf2',running:'#0FA47F',done:'#107C10',failed:'#D33438',repair:'#E68A00',goal:'#4C2A86'};
+const svg=document.getElementById('dag'),L=document.getElementById('log');
+function draw(){svg.innerHTML='';
+  edges.forEach(([f,t])=>{const a=nodes.find(n=>n.id==f),b=nodes.find(n=>n.id==t);
+    const line=document.createElementNS(NS,'path');const x1=a.x+a.w/2,y1=a.y+38,x2=b.x+b.w/2,y2=b.y;
+    line.setAttribute('d',`M${x1},${y1} C${x1},${(y1+y2)/2} ${x2},${(y1+y2)/2} ${x2},${y2}`);
+    line.setAttribute('fill','none');line.setAttribute('stroke','#cfc6e6');line.setAttribute('stroke-width','2');svg.appendChild(line);});
+  nodes.forEach(n=>{const g=document.createElementNS(NS,'g');
+    const r=document.createElementNS(NS,'rect');r.setAttribute('x',n.x);r.setAttribute('y',n.y);r.setAttribute('width',n.w);r.setAttribute('height',38);r.setAttribute('rx',9);
+    const state=n.type==='goal'?'goal':(st[n.id]||'pending');r.setAttribute('fill',COL[state]);
+    r.setAttribute('stroke',state==='running'?'#0FA47F':'#cfc6e6');r.setAttribute('stroke-width','1.5');g.appendChild(r);
+    const t=document.createElementNS(NS,'text');t.setAttribute('x',n.x+n.w/2);t.setAttribute('y',n.y+24);t.setAttribute('text-anchor','middle');
+    const dark=(state==='pending');t.setAttribute('fill',dark?'#3a3160':'#ffffff');t.setAttribute('font-size','12.5');t.setAttribute('font-family','Segoe UI');t.setAttribute('font-weight','600');
+    t.textContent=n.label;g.appendChild(t);svg.appendChild(g);});}
+function log(c,m){L.insertAdjacentHTML('beforeend',`<div><span class="t">planner:</span> <span class="${c}">${m}</span></div>`);L.scrollTop=L.scrollHeight;}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function reset(){initPlan();st={};busy=false;L.innerHTML='';draw();
+  log('info','plan compiled · 5 steps · 3 parallel pulls → break-even → risk & compose');}
+async function runNode(id){st[id]='running';draw();log('info',`▶ ${nodes.find(n=>n.id==id).label}`);await sleep(650);
+  if(id==='c'&&injectFail){st[id]='failed';draw();log('err','✖ step 3 failed · market-rate API 503 · error captured as control signal');await sleep(650);
+    log('warn','↻ RE-PLAN: not restarting the underwrite — patching the failed sub-tree only');await sleep(550);
+    nodes.push({id:'c2',x:540,y:250,w:170,label:'3b · Fallback rate table'});edges.push(['c','c2']);edges.push(['c2','d']);
+    st['c2']='repair';draw();log('warn','+ inserted repair step "Fallback rate table" · rerouted → step 4');await sleep(750);
+    st['c2']='running';draw();await sleep(650);st['c2']='done';draw();log('ok','✔ repair done · cached Contoso rate sheet used (flagged: not live)');return;}
+  st[id]='done';draw();log('ok',`✔ ${nodes.find(n=>n.id==id).label} · verified`);}
+async function execute(){if(busy)return;busy=true;document.getElementById('run').disabled=true;document.getElementById('fail').disabled=true;
+  log('info','dispatching parallel pulls: income, credit band, market rates');
+  await Promise.all([runNode('a'),runNode('b'),runNode('c')]);await sleep(300);
+  log('info','join barrier reached · all inputs satisfied');await runNode('d');await runNode('e');
+  log('ok','● DECISION reached · refinance recommendation composed'+(injectFail?' (via repaired plan)':''));
+  document.getElementById('run').disabled=false;document.getElementById('fail').disabled=false;busy=false;}
+document.getElementById('run').onclick=()=>{injectFail=false;reset();execute();};
+document.getElementById('fail').onclick=()=>{injectFail=true;reset();log('warn','failure injected → market-rate API will 503');execute();};
+document.getElementById('reset').onclick=()=>{injectFail=false;reset();};
+reset();
+
+document.getElementById('tour').onclick=()=>{injectFail=true;reset();log('warn','failure injected → market-rate API will 503');
+  TourEngine.run([
+    {say:"To decide if Maya should refinance, Aria first plans. The goal is decomposed into a directed graph of checkable steps.",kick:"02 · Orchestration"},
+    {say:"Three inputs can be pulled in parallel: her income and cash-flow, her credit band, and today's live market rates.",wait:400},
+    {say:"They join at a break-even calculation, then a final risk and fair-lending check composes the recommendation. Let's execute it.",run:async()=>{execute();},wait:1400},
+    {say:"Watch the market-rate pull — in the real world, that third-party API can fail. And there it goes: a 503.",hold:5200},
+    {say:"A naive agent would restart everything. The harness doesn't. It treats the error as a control signal and re-plans just the broken sub-tree.",hold:5600},
+    {say:"It inserts a repair step — a cached fallback rate table, clearly flagged as not-live — reroutes the edge, and the underwrite continues.",hold:6000},
+    {say:"Break-even computes, risk and fair-lending pass, and the decision is composed. One failed step cost one repair — not the whole run.",kick:"Takeaway",hold:6000},
+  ]);
+};
+</script>
+</body>
+</html>

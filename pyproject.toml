@@ -1,0 +1,90 @@
+[project]
+name = "cypher-workshop26"
+version = "0.1.0"
+description = "Agentic AI — a one-day, hands-on workshop on building, optimizing, and operationalizing agents with the Microsoft Agent Framework (Python)."
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = { text = "MIT" }
+
+# Pin to specific Agent Framework subpackages.
+#
+# NOTE: the subpackages version *independently* — they do not share a release
+# number. Core is at 1.13.0 while foundry/openai trail it; there is no 1.13.0 of
+# either. Pin each to its own latest stable rather than assuming one version.
+#
+# IMPORTANT: do NOT depend on the `agent-framework` meta-package — it pulls in
+# `agent-framework-core[all]`, which requires pre-release-only deps
+# (e.g. agent-framework-azure-ai-search) and makes resolution fail without
+# `--prerelease=allow`. We install exactly the providers the labs use instead.
+dependencies = [
+    "agent-framework-core==1.13.0",
+    "agent-framework-foundry==1.10.4",  # default provider (Azure AI Foundry)
+    "agent-framework-openai==1.10.0",   # OpenAI + Azure OpenAI + Gemini (OpenAI-compatible)
+    # ^ deliberately NOT the latest (1.12.0). Starting in 1.11.0 this client
+    #   unconditionally appends "reasoning.encrypted_content" to `include` on every
+    #   stateless Responses request, and non-reasoning models reject it with HTTP 400
+    #   ("Encrypted content is not supported with this model") — which breaks the
+    #   workshop's documented default, gpt-4o. 1.10.0 is the last version without it.
+    #   The foundry client is unaffected (it strips the flag itself), so only the
+    #   openai / azure-openai / gemini providers were exposed.
+    "agent-framework-orchestrations==1.0.2",  # M5: SequentialBuilder / HandoffBuilder
+    # ^ versioned independently of core — 1.0.2 is its latest stable.
+    "mcp>=1.24,<2",  # M2: MCPStdioTool / MCPStreamableHTTPTool / MCPWebsocketTool
+    # ^ core declares `mcp>=1.24.0,<2` under its [all] extra, which we don't install.
+    #   The <2 bound is load-bearing: mcp 2.0 renamed handshake fields and core
+    #   1.13.0 fails to initialize any MCP server against it.
+    "azure-identity>=1.19",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Extra model providers — install only if you plan to use them.
+#   uv pip install -e ".[anthropic]"   (etc.)
+#
+# These three have no stable release yet — beta is the only channel they publish
+# to, so the pins are deliberately pre-release. `[tool.uv] prerelease` below is
+# set to `if-necessary-or-explicit`, and an exact pin counts as explicit.
+anthropic = ["agent-framework-anthropic==1.0.0b260730"]
+ollama = ["agent-framework-ollama==1.0.0b260730"]
+bedrock = ["agent-framework-bedrock==1.0.0b260730"]
+
+# Tools to author/run the notebooks and build the site locally.
+docs = [
+    "jupyter>=1.0",
+    "nbconvert>=7.16",
+    "ipykernel>=6.29",
+    "mkdocs-material>=9.5",
+    "mkdocs-jupyter>=0.25",
+    "pymdown-extensions>=10.7",
+    # M7 (Operationalizing) uses OpenTelemetry tracing. agent-framework-core only
+    # declares opentelemetry-api; the SDK + an OTLP exporter must be added explicitly
+    # so `configure_otel_providers(...)` works after the documented install.
+    "opentelemetry-sdk>=1.39,<2",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.39,<2",
+    # HTTP exporter is what `setup_tracing()` uses for the Phoenix / Langfuse
+    # backends. Langfuse accepts OTLP over HTTP only — it does not speak gRPC.
+    "opentelemetry-exporter-otlp-proto-http>=1.39,<2",
+    # Reshapes Agent Framework's raw `gen_ai.*` spans into the `llm.*`/`tool.*`
+    # OpenInference shape that Phoenix's UI renders. Small pure-Python package —
+    # unlike `arize-phoenix` itself, it does not pin its own OpenTelemetry stack.
+    "openinference-instrumentation-agent-framework>=0.1.6,<0.2",
+]
+
+# NOTE: Phoenix is deliberately NOT an extra here. `arize-phoenix` pins its own
+# OpenTelemetry versions and would fight the pins above. Run it out-of-process
+# instead — `uvx phoenix serve`, or the Docker image — and point
+# TRACE_BACKEND=phoenix at it. See docs/modules/07-operationalize.ipynb.
+
+[tool.uv]
+# Prefer stable releases for the agent-framework providers. `if-necessary-or-explicit`
+# still prefers stable, but allows a pre-release when a dependency has no stable
+# option — required by opentelemetry-sdk (whose pinned opentelemetry-semantic-conventions
+# is published only as a beta, 0.64b0) and by the anthropic/ollama/bedrock extras above.
+prerelease = "if-necessary-or-explicit"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["workshop_utils"]

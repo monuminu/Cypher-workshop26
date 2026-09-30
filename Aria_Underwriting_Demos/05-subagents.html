@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · The Underwriting Specialist Team · Aria</title>
+<style>
+  :root{--pur:#4C2A86;--pur2:#6A3FB5;--head1:#3C1F6E;--head2:#5B2E9E;
+    --teal:#0FA47F;--green:#107C10;--red:#D33438;--amber:#E68A00;--blue:#0078D4;
+    --ink:#1F2430;--muted:#6B7280;--bg:#F4F5F8;--card:#FFFFFF;--line:#E5E7EB}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .hdr{background:linear-gradient(100deg,var(--head1),var(--head2) 60%,var(--pur2));color:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px}
+  .mark{width:34px;height:34px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--pur);font-weight:800}
+  .htxt b{font-size:15.5px}.htxt div{font-size:11.5px;color:#D9CCF2}
+  a.back{margin-left:auto;color:#EDE4FB;text-decoration:none;font-size:13px}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  h1{font-size:23px;margin:4px 0}.sub{color:var(--muted);margin-bottom:16px;font-size:15px}
+  .bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 15px;border-radius:9px;cursor:pointer;transition:.15s;box-shadow:0 1px 2px rgba(20,20,50,.05)}
+  button:hover{border-color:var(--pur2)}button:disabled{opacity:.45;cursor:not-allowed}
+  button.primary{background:linear-gradient(135deg,var(--pur),var(--pur2));border:none;color:#fff}
+  button.tour{background:linear-gradient(135deg,var(--pur2),var(--blue));border:none;color:#fff}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(20,20,50,.05)}
+  svg{width:100%;height:auto}
+  .status{font-size:12px;color:var(--muted);margin-top:12px;text-align:center}
+  #cap{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);max-width:min(1000px,92vw);background:rgba(24,14,52,.94);color:#fff;padding:16px 26px;border-radius:14px;font-size:20px;line-height:1.4;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;transition:opacity .3s;z-index:60;pointer-events:none}
+  #cap.show{opacity:1}#cap .k{color:#c7a6ff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .touring #manual{opacity:.4;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="mark">C</div><div class="htxt"><b>Aria — Refinance Underwriting</b><div>05 · Scaling out</div></div><a class="back" href="index.html">← All demos</a></div>
+<div class="wrap">
+  <h1>The Underwriting Specialist Team · Fan-Out / Fan-In</h1>
+  <div class="sub">Aria's orchestrator spawns four specialists — Income, Credit, Market-rate, Risk &amp; Compliance — each in its own isolated context. Results are verified, then merged. The orchestrator's own context stays small.</div>
+  <div class="bar">
+    <button class="tour" id="tour">▶ Guided Tour</button>
+    <button id="voice">🔊 Voice: on</button>
+    <span id="manual" style="display:inline-flex;gap:9px;flex-wrap:wrap">
+      <button class="primary" id="run">▶ Delegate underwrite</button>
+    </span>
+    <button id="reset">↺ Reset</button>
+    <button id="fs">⤢ Full screen</button>
+    <span id="phase" style="font-size:13px;color:var(--muted)"></span>
+  </div>
+  <div class="panel"><svg id="viz" viewBox="0 0 900 470"></svg><div class="status" id="ctxnote"></div></div>
+</div>
+<div id="cap"><span class="k" id="cap-k">Guided tour</span><span id="cap-t"></span></div>
+<script>
+const TourEngine=(()=>{let voiceOn=true,touring=false,cancelled=false;
+  const cap=document.getElementById('cap'),capT=document.getElementById('cap-t'),capK=document.getElementById('cap-k');
+  function setVoiceBtn(){const b=document.getElementById('voice');if(b)b.textContent='🔊 Voice: '+(voiceOn?'on':'off');}
+  function speak(t){return new Promise(res=>{if(!voiceOn||!('speechSynthesis'in window)){res();return;}
+    try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1.02;u.onend=res;u.onerror=res;
+      const vs=speechSynthesis.getVoices();const pref=vs.find(v=>/en-US|Samantha|Aria|Jenny|Google US/i.test(v.name+v.lang));if(pref)u.voice=pref;
+      speechSynthesis.speak(u);setTimeout(res,Math.max(2600,t.length*70));}catch(e){res();}});}
+  async function caption(kick,text,hold){capK.textContent=kick||'Guided tour';capT.textContent=text;cap.classList.add('show');
+    await Promise.race([speak(text),sleep(hold||Math.max(2400,text.length*46))]);if(!voiceOn)await sleep(250);}
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function enterFS(){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();}catch(e){}}
+  async function run(steps,{fullscreen=true}={}){if(touring)return;touring=true;cancelled=false;document.body.classList.add('touring');
+    const tb=document.getElementById('tour');if(tb){tb.disabled=true;tb.textContent='● Touring…';}if(fullscreen)await enterFS();await sleep(500);
+    for(const s of steps){if(cancelled)break;if(s.run)await s.run();if(s.say)await caption(s.kick,s.say,s.hold);if(s.wait)await sleep(s.wait);}
+    cap.classList.remove('show');document.body.classList.remove('touring');touring=false;if(tb){tb.disabled=false;tb.textContent='▶ Guided Tour';}}
+  function toggleVoice(){voiceOn=!voiceOn;setVoiceBtn();if(!voiceOn&&'speechSynthesis'in window)speechSynthesis.cancel();}
+  if('speechSynthesis'in window)speechSynthesis.getVoices();
+  return {run,toggleVoice,sleep,isTouring:()=>touring};})();
+document.getElementById('voice').onclick=TourEngine.toggleVoice;
+document.getElementById('fs').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();else document.exitFullscreen();};
+
+const NS="http://www.w3.org/2000/svg";const svg=document.getElementById('viz');
+const SUBS=[
+  {id:0,name:'Income',x:70,tool:'fabric.read',dur:1400,ok:true},
+  {id:1,name:'Credit',x:300,tool:'bureau.read',dur:2000,ok:true},
+  {id:2,name:'Market-rate',x:530,tool:'web.get',dur:1700,ok:false},
+  {id:3,name:'Risk & Compliance',x:760,tool:'work.check',dur:1300,ok:true},
+];
+const ORCH={x:340,y:20,w:220,h:52};let state={};
+function el(tag,attrs){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);svg.appendChild(e);return e;}
+function draw(){svg.innerHTML='';
+  el('rect',{x:ORCH.x,y:ORCH.y,width:ORCH.w,height:ORCH.h,rx:12,fill:'#4C2A86',stroke:'#8a6fc0','stroke-width':2});
+  el('text',{x:ORCH.x+ORCH.w/2,y:ORCH.y+31,'text-anchor':'middle',fill:'#fff','font-size':15,'font-weight':700}).textContent='ORCHESTRATOR';
+  el('text',{x:ORCH.x+ORCH.w/2,y:ORCH.y+70,'text-anchor':'middle',fill:'#6B7280','font-size':11}).textContent=`own context: ${state.ctxTok||640} tok (isolated from sub-agents)`;
+  SUBS.forEach(s=>{const st=state[s.id]||{};const y=150,h=170;
+    const x1=ORCH.x+ORCH.w/2,y1=ORCH.y+ORCH.h,x2=s.x+90,y2=y;
+    const p=el('path',{d:`M${x1},${y1} C${x1},110 ${x2},110 ${x2},${y2}`,fill:'none',stroke:st.spawned?'#0FA47F':'#cfc6e6','stroke-width':st.spawned?2.5:1.5,'stroke-dasharray':st.merged?'0':(st.spawned?'6 5':'0')});
+    if(st.spawned&&!st.merged){const a=document.createElementNS(NS,'animate');a.setAttribute('attributeName','stroke-dashoffset');a.setAttribute('from','22');a.setAttribute('to','0');a.setAttribute('dur','0.7s');a.setAttribute('repeatCount','indefinite');p.appendChild(a);}
+    if(st.done){el('path',{d:`M${x2},${y2} C${x2},110 ${x1+40},110 ${x1+40},${y1}`,fill:'none',stroke:s.ok?'#107C10':'#D33438','stroke-width':2.5,'stroke-dasharray':'4 4'});}
+    const col=!st.spawned?'#cfc6e6':st.running?'#0FA47F':st.done?(s.ok?'#107C10':'#D33438'):'#cfc6e6';
+    el('rect',{x:s.x,y,width:180,height:h,rx:12,stroke:col,'stroke-width':2,fill:'#ffffff'});
+    el('text',{x:s.x+90,y:y+26,'text-anchor':'middle',fill:'#1F2430','font-size':14,'font-weight':700}).textContent=s.name;
+    el('text',{x:s.x+90,y:y+46,'text-anchor':'middle',fill:'#6B7280','font-size':11,'font-family':'Consolas'}).textContent='tool: '+s.tool;
+    el('rect',{x:s.x+16,y:y+60,width:148,height:22,rx:5,fill:'#f0faf6',stroke:'#bfe3d5'});
+    el('text',{x:s.x+90,y:y+75,'text-anchor':'middle',fill:'#0c8a63','font-size':10,'font-family':'Consolas'}).textContent='◆ isolated context';
+    let sl=!st.spawned?'idle':st.running?'▶ working…':st.done?(s.ok?'✔ verified':'✖ failed → retry'):'spawned';
+    el('text',{x:s.x+90,y:y+108,'text-anchor':'middle',fill:col,'font-size':12,'font-weight':600}).textContent=sl;
+    el('rect',{x:s.x+16,y:y+124,width:148,height:8,rx:4,fill:'#ece9f5'});
+    el('rect',{x:s.x+16,y:y+124,width:148*(st.prog||0),height:8,rx:4,fill:col});
+    if(st.done){el('text',{x:s.x+90,y:y+156,'text-anchor':'middle',fill:'#6B7280','font-size':10.5}).textContent=st.result||'';}});
+  if(state.merging){el('rect',{x:250,y:380,width:400,height:56,rx:12,fill:'#eafaf5',stroke:'#0FA47F','stroke-width':2});
+    el('text',{x:450,y:405,'text-anchor':'middle',fill:'#0c8a63','font-size':14,'font-weight':700}).textContent='FAN-IN · verify + merge into decision';
+    el('text',{x:450,y:424,'text-anchor':'middle',fill:'#6B7280','font-size':11}).textContent=state.mergeNote||'';}}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function animateProg(id,dur){const steps=20;for(let i=1;i<=steps;i++){state[id].prog=i/steps;draw();await sleep(dur/steps);}}
+function setPhase(t){document.getElementById('phase').textContent=t;}
+function note(t){document.getElementById('ctxnote').textContent=t;}
+async function run(){document.getElementById('run').disabled=true;reset(true);
+  setPhase('① FAN-OUT · spawning specialists');note('The orchestrator decomposes the underwrite and spawns four specialists — each gets a fresh, isolated context window.');
+  for(const s of SUBS){state[s.id]={spawned:true};draw();await sleep(300);}await sleep(400);
+  setPhase('② PARALLEL EXECUTION · isolated contexts');
+  await Promise.all(SUBS.map(async s=>{state[s.id].running=true;draw();await animateProg(s.id,s.dur);
+    state[s.id].running=false;state[s.id].done=true;state[s.id].result=s.ok?'output ✓ passed verifier':'error ✗ (will retry once)';draw();
+    if(!s.ok){await sleep(500);state[s.id].done=false;state[s.id].running=true;state[s.id].prog=0;
+      note('Market-rate agent failed verification — the orchestrator retries it in a fresh sub-context. Blast radius contained.');draw();
+      await animateProg(s.id,1000);s.ok=true;state[s.id].running=false;state[s.id].done=true;state[s.id].result='retry ✓ passed verifier';draw();}}));
+  await sleep(400);setPhase('③ FAN-IN · verify + merge');state.merging=true;state.mergeNote='4 verified findings → merged into the underwriting decision';state.ctxTok=1010;draw();
+  note('Only the verified findings flow back. The specialists\' large working contexts are discarded, keeping the orchestrator lean.');
+  await sleep(900);setPhase('✔ DECISION READY');document.getElementById('run').disabled=false;SUBS[2].ok=false;}
+function reset(keep){state={ctxTok:640};SUBS.forEach(s=>state[s.id]={});if(!keep){setPhase('');note('');SUBS[2].ok=false;}draw();}
+document.getElementById('run').onclick=run;
+document.getElementById('reset').onclick=()=>reset(false);
+reset(false);
+
+document.getElementById('tour').onclick=()=>{reset(false);
+  TourEngine.run([
+    {say:"Underwriting needs several kinds of expertise at once. Instead of one giant prompt, Aria's orchestrator delegates to a team of specialists.",kick:"05 · Scaling out"},
+    {say:"Watch the fan-out: Income, Credit, Market-rate, and Risk-and-Compliance agents are each spawned in their own isolated context.",run:async()=>{run();},wait:2600},
+    {say:"They run in parallel. Each pulls only what it needs — so no single context has to hold the entire problem.",hold:5000},
+    {say:"The Market-rate agent hits a bad result and fails its verifier. Because it's isolated, the orchestrator simply retries it in a fresh sub-context — nothing else is affected.",hold:6200},
+    {say:"Then fan-in: every specialist's output is verified and merged into one underwriting decision.",hold:4600},
+    {say:"Crucially, only the findings come back — the sub-agents' big working contexts are thrown away. The orchestrator stays small, and the team scales.",kick:"Takeaway",run:async()=>{let n=0;while(document.getElementById('phase').textContent.indexOf('READY')<0&&n<40){await TourEngine.sleep(250);n++;}},hold:6000},
+  ]);
+};
+</script>
+</body>
+</html>

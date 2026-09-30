@@ -1,0 +1,20 @@
+{
+  "as_of": "2026-03-12",
+  "policy": {
+    "policy_id": "CONTOSO-RET-30",
+    "return_window_days": 30,
+    "window_starts": "delivery_date",
+    "excluded_categories": ["gift_card", "opened_software", "clearance"],
+    "summary": "Contoso accepts returns within 30 days of delivery. Gift cards, opened software and clearance items cannot be returned. Returns can only start after an order is delivered."
+  },
+  "orders": [
+    {"order_id": "CR-1001", "status": "shipped",    "item": "Aurora 14-inch Laptop Sleeve",     "category": "accessories", "carrier": "FleetEx",  "eta": "2026-03-14", "order_date": "2026-03-02", "delivered_date": null,         "price_usd": 34.00},
+    {"order_id": "CR-1044", "status": "delivered",  "item": "Nimbus Wireless Keyboard",         "category": "peripherals", "carrier": "FleetEx",  "eta": "2026-03-09", "order_date": "2026-03-01", "delivered_date": "2026-03-09", "price_usd": 79.00},
+    {"order_id": "CR-1077", "status": "delivered",  "item": "Vertex 27-inch Monitor",           "category": "displays",    "carrier": "RailPost", "eta": "2026-01-05", "order_date": "2025-12-28", "delivered_date": "2026-01-05", "price_usd": 289.00},
+    {"order_id": "CR-1090", "status": "processing", "item": "Halo Noise-Cancelling Headphones", "category": "audio",       "carrier": null,       "eta": "2026-03-18", "order_date": "2026-03-11", "delivered_date": null,         "price_usd": 199.00},
+    {"order_id": "CR-1102", "status": "delivered",  "item": "Contoso Gift Card 50 USD",         "category": "gift_card",   "carrier": "FleetEx",  "eta": "2026-03-05", "order_date": "2026-03-03", "delivered_date": "2026-03-05", "price_usd": 50.00},
+    {"order_id": "CR-1118", "status": "in_transit", "item": "Cobalt Standing Desk",             "category": "furniture",   "carrier": "RailPost", "eta": "2026-03-20", "order_date": "2026-03-06", "delivered_date": null,         "price_usd": 449.00},
+    {"order_id": "CR-1125", "status": "cancelled",  "item": "Lumen Desk Lamp",                  "category": "lighting",    "carrier": null,       "eta": null,         "order_date": "2026-03-08", "delivered_date": null,         "price_usd": 42.00},
+    {"order_id": "CR-1133", "status": "delivered",  "item": "Orbit Mechanical Mouse",           "category": "peripherals", "carrier": "FleetEx",  "eta": "2026-02-20", "order_date": "2026-02-14", "delivered_date": "2026-02-20", "price_usd": 59.00}
+  ]
+}

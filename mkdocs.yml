@@ -68,7 +68,6 @@ nav:
   - Home: index.md
   - Setup: setup.md
   - Concepts: concepts.md
-  - "Opening demo · Plan my next day": modules/00-cypher-agenda-demo.ipynb
   - Labs:
       - "M1 · Your First Agent": modules/01-first-agent.ipynb
       - "M2 · Tools & Function Calling": modules/02-tools.ipynb

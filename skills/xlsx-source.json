@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/anthropics/skills",
+  "path": "skills/xlsx",
+  "commit": "8a1541c4a3ffa5a20a5a91de0dcf3f0bab1d1ef4",
+  "requested_source": "https://github.com/anthropics/skills/tree/main/skills/xlsx",
+  "local_path": "skills/xlsx",
+  "license": "Upstream license prohibits redistribution; skill contents remain local and are not included in this repository.",
+  "modifications": "None to upstream skill files. Execution adapter lives in workshop_utils/agenda_code.py."
+}

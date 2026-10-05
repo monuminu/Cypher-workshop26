@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/anthropics/skills",
+  "path": "skills/pptx",
+  "commit": "8a1541c4a3ffa5a20a5a91de0dcf3f0bab1d1ef4",
+  "license": "Upstream license prohibits redistribution; skill contents remain local and are not included in this repository."
+}

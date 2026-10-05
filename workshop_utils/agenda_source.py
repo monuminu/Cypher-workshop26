@@ -10,6 +10,7 @@ import hashlib
 import io
 import json
 import re
+import sys
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -79,8 +80,42 @@ class Schedule:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(asdict(self), indent=2, ensure_ascii=False), encoding="utf-8")
 
+    @classmethod
+    def load(cls, path: Path) -> Schedule:
+        """Restore a capture without changing its timestamp or provenance."""
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            data["sessions"] = [Session(**row) for row in data["sessions"]]
+            schedule = cls(**data)
+            if not schedule.sessions or datetime.fromisoformat(schedule.captured_at).utcoffset() is None:
+                raise ValueError("missing sessions or timezone-aware capture timestamp")
+            return schedule
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"Cannot read saved schedule {path}: {exc}. Set FORCE_REFRESH=True to fetch again.") from exc
+
     def review_rows(self) -> list[dict]:
         return [asdict(s) for s in self.sessions]
+
+
+async def load_or_fetch_schedule(cache_path: Path, *, previous_paths=(), refresh: bool = False) -> Schedule:
+    """Reuse a saved observation; only fetch if absent or explicitly refreshed."""
+    saved = None
+    if not refresh:
+        if cache_path.exists():
+            saved = cache_path
+        else:
+            saved = max((p for p in previous_paths if p.is_file()),
+                        key=lambda p: p.stat().st_mtime_ns, default=None)
+    if saved is not None:
+        schedule = Schedule.load(saved)
+        print(f"Reusing saved schedule: {saved.resolve()} | Captured: {schedule.captured_at}")
+        if saved != cache_path:
+            schedule.save(cache_path)
+        return schedule
+    schedule = await fetch_live_schedule()
+    schedule.save(cache_path)
+    print(f"Fetched schedule: {cache_path.resolve()} | Captured: {schedule.captured_at}")
+    return schedule
 
 
 def next_day(schedule: Schedule, selected: str | None = None, *, today: date | None = None) -> str:
@@ -120,44 +155,60 @@ def session_from_calendar(session_id: str, href: str, card_text: str) -> Session
 
 
 def _fetch_browser() -> Schedule:
-    from playwright.sync_api import sync_playwright
+    # Jupyter sets a process-wide Selector policy on Windows. A worker thread
+    # alone still inherits it; use a private subprocess-capable loop instead.
+    loop = asyncio.ProactorEventLoop() if sys.platform == "win32" else asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(_fetch_browser_async())
+    finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        loop.run_until_complete(loop.shutdown_default_executor())
+        loop.close()
+
+
+async def _fetch_browser_async() -> Schedule:
+    from playwright.async_api import async_playwright
     sessions, warnings = [], []
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch(headless=True)
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(headless=True)
         try:
-            page = browser.new_page(viewport={"width": 1440, "height": 1000})
+            page = await browser.new_page(viewport={"width": 1440, "height": 1000})
             # Speaker images/audio are irrelevant to the schedule text and expensive on workshop Wi-Fi.
-            page.route("**/*", lambda route: route.abort() if route.request.resource_type in {"image", "media", "font"}
-                       else route.continue_())
-            page.goto(SOURCE_URL, wait_until="domcontentloaded", timeout=45000)
-            page.get_by_role("tab", name="2026", exact=True).click()
-            page.get_by_role("tab", name=re.compile(r"DAY\s*1", re.I)).wait_for(timeout=45000)
-            page.add_style_tag(content="*, *::before, *::after { animation: none !important; transition: none !important; }")
-            day_tabs = [(tab.get_attribute("id"), tab.inner_text()) for tab in page.get_by_role("tab").all()]
+            async def route_resources(route):
+                if route.request.resource_type in {"image", "media", "font"}:
+                    await route.abort()
+                else:
+                    await route.continue_()
+            await page.route("**/*", route_resources)
+            await page.goto(SOURCE_URL, wait_until="domcontentloaded", timeout=45000)
+            await page.get_by_role("tab", name="2026", exact=True).click()
+            await page.get_by_role("tab", name=re.compile(r"DAY\s*1", re.I)).wait_for(timeout=45000)
+            await page.add_style_tag(content="*, *::before, *::after { animation: none !important; transition: none !important; }")
+            day_tabs = [(await tab.get_attribute("id"), await tab.inner_text()) for tab in await page.get_by_role("tab").all()]
             day_tabs = [(tid, label) for tid, label in day_tabs if re.match(r"\s*DAY\s*\d", label, re.I)]
             if not day_tabs:
                 raise ValueError("No conference day tabs found.")
-            provisional = "finalizing" in page.locator("body").inner_text().lower()
+            provisional = "finalizing" in (await page.locator("body").inner_text()).lower()
             for tab_id, label in day_tabs:
                 print("[source] Reading " + " ".join(label.split()), flush=True)
                 tab = page.locator(f'[id="{tab_id}"]')
-                tab.click()
-                panel_id = tab.get_attribute("aria-controls")
+                await tab.click()
+                panel_id = await tab.get_attribute("aria-controls")
                 panel = page.locator(f'[id="{panel_id}"]')
                 cards = panel.locator('button[id^="session-"]')
-                cards.first.wait_for(timeout=20000)
-                card_ids = cards.evaluate_all("els => els.map(e => e.id)")
+                await cards.first.wait_for(timeout=20000)
+                card_ids = await cards.evaluate_all("els => els.map(e => e.id)")
                 count_match = re.search(r"(\d+)\s*$", label)
                 if count_match and len(card_ids) != int(count_match.group(1)):
                     raise ValueError(f"Partial schedule: {label!r}, found {len(card_ids)} cards.")
                 for card_index, card_id in enumerate(card_ids):
                     card = panel.locator(f'[id="{card_id}"]')
-                    card_text = card.inner_text()
-                    card.click()
+                    card_text = await card.inner_text()
+                    await card.click()
                     dialog = page.get_by_role("dialog")
                     try:
                         link = dialog.get_by_role("link", name="Google Calendar", exact=True)
-                        href = link.get_attribute("href", timeout=10000)
+                        href = await link.get_attribute("href", timeout=10000)
                         session = session_from_calendar(card_id.removeprefix("session-"), href or "", card_text)
                         # Cross-check the date from the selected day tab.
                         tab_date = re.search(r"\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d{1,2})", label, re.I)
@@ -170,7 +221,7 @@ def _fetch_browser() -> Schedule:
                     except (KeyError, ValueError) as exc:
                         warnings.append(f"{card_id}: excluded; {exc}")
                     finally:
-                        dialog.get_by_role("button", name="Close", exact=True).click()
+                        await dialog.get_by_role("button", name="Close", exact=True).click()
                     if (card_index + 1) % 10 == 0:
                         print(f"[source] {card_index + 1}/{len(card_ids)} session details read", flush=True)
             result = Schedule(sessions, datetime.now(IST).isoformat(), "live browser", provisional=provisional,
@@ -179,15 +230,17 @@ def _fetch_browser() -> Schedule:
                 raise ValueError("; ".join(result.issues() + warnings[:3]))
             return result
         finally:
-            browser.close()
+            await browser.close()
 
 
 async def fetch_live_schedule() -> Schedule:
-    """A new browser observation every call; thread keeps Windows Jupyter compatible."""
+    """Fresh observation on a private loop; compatible with Windows Jupyter."""
     try:
         return await asyncio.to_thread(_fetch_browser)
     except Exception as exc:
-        raise RuntimeError("Live agenda unavailable. Retry or use the documented fresh manual import; "
+        detail = str(exc).strip() or "no additional details"
+        raise RuntimeError(f"Live agenda unavailable ({type(exc).__name__}: {detail}). "
+                           "Retry or use the documented fresh manual import; "
                            "no cached or model-generated schedule was substituted.") from exc
 
 

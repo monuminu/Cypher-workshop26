@@ -35,3 +35,7 @@ site/
 .DS_Store
 .idea/
 .vscode/
+
+# Locally installed third-party skills with redistribution restrictions
+/skills/xlsx/
+/skills/pptx/

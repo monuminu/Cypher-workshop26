@@ -13,11 +13,12 @@
 
 ## Schedule at a Glance
 
-Use the first **8–10 minutes** of the introduction for
-[Plan my next day at Cypher](docs/modules/00-cypher-agenda-demo.ipynb).
-Retrieve the live source before presenting. Compare the two Excel workbooks,
-change the participant's availability, and revisit the implementation in
-[Module 4](docs/modules/04-agent-harness.ipynb). The eight labs retain their numbering.
+Use the first **8–10 minutes** of the introduction for the
+[presenter-led opening app](opening-demo/README.md), running on the instructor's laptop.
+Show both agents working on the same task, inspect their outputs and tool calls,
+and explain the capabilities participants will build. Participants then start
+[M1 · Your First Agent](docs/modules/01-first-agent.ipynb); Module 4 assembles the harness.
+No opening notebook or demo setup is required for participants.
 
 | Time | Session | Format |
 |:---|:---|:---:|

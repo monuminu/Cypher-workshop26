@@ -6,7 +6,7 @@ Do not restore the obsolete research-assistant generator.
 from pathlib import Path
 import nbformat
 from _nbbuild import md, code, write_notebook
-from gen_agenda_demo import application_cells
+from _agenda_application import application_cells
 
 ROOT = Path(__file__).resolve().parents[1]
 BATTERY_CELLS = [{'cell_type': 'markdown',
@@ -889,8 +889,9 @@ def main():
     cells[0].source = "".join(cells[0].source) + "\n\n[Download this notebook](https://monuminu.github.io/Cypher-workshop26/modules/04-agent-harness/04-agent-harness.ipynb)"
     cells.append(md("""## 15. Plan my next day at Cypher, end to end
 
-Rebuild the [opening demo](00-cypher-agenda-demo.ipynb) using the batteries above.
-The business task and domain tools are identical for both agents. Inspect the
+Apply the batteries above to a personal agenda task. See the [application setup](../m4-agenda-setup.md).
+The business task and code interpreter are identical. Only the harness receives the
+Excel skill and runtime providers. Inspect the
 harness completion predicate: it combines task state with independent workbook
 validation. Do not infer reliability from a single run or require the baseline to fail.
 """))
@@ -914,8 +915,12 @@ validation. Do not infer reliability from a single run or require the baseline t
    only if the agent actually wrote one. Do not claim durable agent memory from the
    host's `profile.json` alone.
 
-The compact task need not trigger compaction, skills, or background agents.
-Use the dedicated battery exercises to demonstrate those capabilities.
+6. **Isolate the skill effect.** Give a basic agent the same SkillsProvider and interpreter
+   in a separate experiment, or disable the harness skill. Keep model/data/limits fixed.
+   Record skill-load events, actual script execution and final workbook checks separately.
+
+This task explicitly loads the xlsx skill. It need not trigger compaction or background
+agents. Use the dedicated battery exercises to demonstrate those capabilities.
 """))
     cells.append(code('''# Safe recovery exercise: explicitly choose a completed run directory.
 # This cell makes no model calls and does not fetch or reuse old schedule data for a new comparison.

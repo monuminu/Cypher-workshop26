@@ -15,11 +15,11 @@ OpenAI, Azure OpenAI, Anthropic, Ollama, AWS Bedrock, or Google Gemini — you c
 
 ## What you'll build
 
-Open with **[Plan my next day at Cypher](docs/modules/00-cypher-agenda-demo.ipynb)**:
-an 8–10 minute comparison of a basic agent and a harness-equipped agent curating a
-personal conference agenda in Excel. Both use the same live source and tools;
-independent checks assess the exported workbooks. Module 4 explains the runtime.
-See [demo setup and rehearsal](docs/setup.md#cypher-agenda-demo).
+Watch the instructor's **[opening app demo](opening-demo/README.md)** on their laptop:
+a basic agent and a harness-equipped agent tackle the same task side by side.
+This preview shows the capabilities you will build and inspect throughout the workshop.
+Participants do not need to run the demo; begin the hands-on labs with
+**[M1 · Your First Agent](docs/modules/01-first-agent.ipynb)**.
 
 Starting from a single LLM call, you assemble a complete **agent harness** —
 tools, memory, planning, multi-agent orchestration, evaluation, and observability.
@@ -80,6 +80,7 @@ kernel. Full instructions: **[docs/setup.md](docs/setup.md)**.
 │   ├── index.md  setup.md  concepts.md
 │   ├── assets/                 # generated architecture diagrams
 │   └── modules/                # the 8 lab notebooks
+├── opening-demo/               # presenter-only local HTML / FastAPI demo
 ├── workshop_utils/clients.py   # get_chat_client() — the provider switcher
 ├── scripts/                    # notebook generators (gen_mN.py) + verify_notebooks.py
 ├── mkdocs.yml                  # site config (Material + mkdocs-jupyter)

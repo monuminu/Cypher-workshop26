@@ -886,7 +886,7 @@ BATTERY_CELLS = [{'cell_type': 'markdown',
 
 def main():
     cells = [nbformat.from_dict(c) for c in BATTERY_CELLS]
-    cells[0].source += "\n\n[Download this notebook](https://monuminu.github.io/Cypher-workshop26/modules/04-agent-harness/04-agent-harness.ipynb)"
+    cells[0].source = "".join(cells[0].source) + "\n\n[Download this notebook](https://monuminu.github.io/Cypher-workshop26/modules/04-agent-harness/04-agent-harness.ipynb)"
     cells.append(md("""## 15. Plan my next day at Cypher, end to end
 
 Rebuild the [opening demo](00-cypher-agenda-demo.ipynb) using the batteries above.

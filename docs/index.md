@@ -18,6 +18,11 @@ environment variable**, not your code.
 
 ## What you'll build
 
+Start with **[Plan my next day at Cypher](modules/00-cypher-agenda-demo.ipynb)**,
+an 8–10 minute demonstration before M1. A basic agent and a harness-equipped agent
+use the same live schedule and participant profile to create Excel agendas. Inspect
+the actual results, then change the participant's availability. Rebuild it in M4.
+
 | Module | You'll learn to… |
 |:--|:--|
 | **[M1 · Your First Agent](modules/01-first-agent.ipynb)** | Create and run an agent; understand the agent loop and streaming. |
@@ -35,10 +40,14 @@ environment variable**, not your code.
 
 ## Agenda at a glance
 
+This is a sample teaching schedule, not a confirmed Cypher event timetable.
+Use the first 8–10 minutes of the introduction for the opening demo; retrieve the
+live schedule before starting the presentation clock.
+
 | Time | Session | Format |
 |:--|:--|:--:|
 | *before today* | **Setup** — install, pick a provider, smoke test | Self-paced |
-| 9:00 – 9:30 | What is agentic AI? Agents vs. chatbots; the harness | Lecture |
+| 9:00 – 9:30 | **Plan my next day** demo; agents vs. chatbots; the harness | Demo + lecture |
 | 9:30 – 10:30 | **M1 · Your First Agent** | Lab |
 | 10:45 – 11:45 | **M2 · Tools & Function Calling** | Lab |
 | 11:45 – 12:30 | **M3 · Context Engineering** | Lab |

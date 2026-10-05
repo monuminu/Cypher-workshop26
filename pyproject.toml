@@ -38,6 +38,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Opening demo / M4 agenda application. Existing framework versions stay unchanged.
+agenda = ["playwright>=1.50,<2", "pypdf>=5,<7", "openpyxl>=3.1,<4"]
+
 # Extra model providers — install only if you plan to use them.
 #   uv pip install -e ".[anthropic]"   (etc.)
 #

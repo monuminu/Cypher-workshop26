@@ -1,193 +1,952 @@
-"""Generate Module 4 — The Agent Harness (centerpiece)."""
+"""Generate M4 from its reconciled battery cells and shared agenda application.
 
-from _nbbuild import code, md, write_notebook
-
-PREAMBLE = """\
-import sys, pathlib, warnings
-sys.path.insert(0, str(pathlib.Path.cwd().parents[1]))
-warnings.filterwarnings("ignore")  # silence experimental-feature warnings for the lab
-from workshop_utils import get_chat_client
-from agent_framework import create_harness_agent"""
-
-cells = [
-    md(
-        """\
-# M4 · The Agent Harness ★
-
-> **The centerpiece of the workshop.** Everything so far — tools, sessions,
-> memory, compaction — gets assembled into one **batteries-included** agent.
->
-> **You'll use:** `create_harness_agent(...)`.
-
----
-
-As you build real agents you keep re-assembling the same machinery: the tool
-loop, history persistence, compaction, planning, memory, observability. The
-**agent harness** is that machinery, packaged.
-
-`create_harness_agent(...)` wires it all up in a single call:
-
-![Agent harness](../../assets/agent-harness.png)
-
-| Component | What it adds | Built by hand in… |
-|:--|:--|:--|
-| **Function invocation** | the automatic tool-calling loop | M2 |
-| **History + persistence** | conversation saved after every model call | M3 |
-| **Compaction** | automatic context-window management | M3 (concept) |
-| **TodoProvider** | the agent plans & tracks its own work items | *new* |
-| **AgentModeProvider** | plan vs. execute mode tracking | *new* |
-| **MemoryStore** | file-based durable memory across sessions | M3 (concept) |
-| **SkillsProvider** | progressive discovery/loading of skills | M3 |
-| **OpenTelemetry** | built-in tracing | M7 |
-| **Web search** | real-time web search tool | *new* |"""
-    ),
-    md(
-        """\
-!!! warning "Version & experimental features"
-    The harness ships in Agent Framework **core 1.13.0** (pinned by this
-    workshop's `pyproject.toml`). `create_harness_agent` itself is now a **stable**
-    API, but several pieces it builds on (`MemoryStore`, skills) are still marked
-    *experimental* and emit warnings — fine for learning, pin versions in
-    production. If `create_harness_agent` is missing, your install is older than
-    core 1.12.0; re-run [Setup](../setup.md)."""
-    ),
-    md("## 1. Setup"),
-    code(PREAMBLE),
-    md(
-        """\
-## 2. Minimal harness agent
-
-The factory needs only a **client** and two **token budgets**
-(`max_context_window_tokens`, `max_output_tokens`). Everything else — tools loop,
-todos, modes, compaction, memory, telemetry — is configured with sensible
-defaults."""
-    ),
-    code(
-        '''\
-agent = create_harness_agent(
-    client=get_chat_client(),
-    max_context_window_tokens=128_000,
-    max_output_tokens=16_384,
-    name="HarnessAgent",
-    description="A batteries-included assistant that plans and tracks its work.",
-)
-agent'''
-    ),
-    md(
-        """\
-## 3. Watch it *plan*
-
-Give the harness agent a multi-step task. Because it has a **TodoProvider** and a
-**plan/execute mode**, it will break the task into todos, work through them, and
-track progress — without you writing any planning code."""
-    ),
-    code(
-        '''\
-session = agent.create_session()
-
-task = (
-    "Plan a simple 3-day weekend trip to Kyoto for a first-time visitor. "
-    "Break it into a short itinerary with one highlight per day."
-)
-
-print("Assistant: ", end="", flush=True)
-async for update in agent.run(task, session=session, stream=True):
-    if update.text:
-        print(update.text, end="", flush=True)
-print()'''
-    ),
-    md(
-        """\
-!!! note "What the harness did for you"
-    Behind that one call: it entered *plan* mode, created todo items, switched to
-    *execute* mode, and persisted history after each model call — all the
-    cross-cutting concerns you'd otherwise hand-wire. Compare this to the manual
-    approval/loop code you wrote in M2: the harness is that, generalized."""
-    ),
-    md(
-        """\
-## 4. Customizing the harness
-
-Every battery can be **disabled or replaced** via keyword args. A few useful ones
-(`create_harness_agent` accepts many more):
-
-| Argument | Effect |
-|:--|:--|
-| `agent_instructions=...` | the agent's persona / task instructions |
-| `tools=[...]` | add your own function tools (from M2) |
-| `disable_web_search=True` | turn off the built-in web search tool |
-| `disable_todo=True` | turn off todo-based planning |
-| `disable_memory=True` | turn off durable memory |
-| `memory_store=...` | plug in a file-based `MemoryStore` for cross-session memory |
-
-Here's a research-style agent with custom instructions and web search left on:"""
-    ),
-    code(
-        '''\
-RESEARCH_INSTRUCTIONS = """\\
-You are a research assistant. Research topics thoroughly and verify claims with
-the tools available to you rather than relying on memory alone. Present findings
-in Markdown with clear sections, cite sources inline, and end with key takeaways.
+The battery source below was synchronized with the expanded 56-cell notebook.
+Do not restore the obsolete research-assistant generator.
 """
+from pathlib import Path
+import nbformat
+from _nbbuild import md, code, write_notebook
+from gen_agenda_demo import application_cells
 
-researcher = create_harness_agent(
-    client=get_chat_client(),
-    max_context_window_tokens=128_000,
-    max_output_tokens=16_384,
-    name="ResearchAgent",
-    description="A research assistant that plans and executes research tasks.",
-    agent_instructions=RESEARCH_INSTRUCTIONS,
-)
+ROOT = Path(__file__).resolve().parents[1]
+BATTERY_CELLS = [{'cell_type': 'markdown',
+  'id': '1ff28c84',
+  'metadata': {},
+  'source': ['# M4 · The Agent Harness ★\n',
+             '\n',
+             '> **The centerpiece of the workshop.** Everything so far — tools, sessions,\n',
+             '> memory, compaction — gets assembled into one **batteries-included** agent.\n',
+             '>\n',
+             "> **You'll use:** `create_harness_agent(...)`, and every battery it ships with.\n",
+             '\n',
+             '---\n',
+             '\n',
+             'As you build real agents you keep re-assembling the same machinery: the tool\n',
+             'loop, history persistence, compaction, planning, memory, approvals, observability.\n',
+             'The **agent harness** is that machinery, packaged.\n',
+             '\n',
+             '![Agent harness](../../assets/agent-harness.png)\n',
+             '\n',
+             '| Battery | What it adds | Built by hand in… |\n',
+             '|:--|:--|:--|\n',
+             '| **Function invocation** | the automatic tool-calling loop | M2 |\n',
+             '| **History + persistence** | conversation saved after *every model call* | M3 |\n',
+             '| **Compaction** | automatic context-window management | M3 (concept) |\n',
+             '| **TodoProvider** | the agent plans & tracks its own work items | *new* |\n',
+             '| **AgentModeProvider** | plan vs. execute mode tracking | *new* |\n',
+             '| **FileMemoryProvider** | durable file-based memory that survives compaction | M3 (concept) '
+             '|\n',
+             '| **FileAccessProvider** | real read/write access to a folder | *new* |\n',
+             '| **Tool approval** | human-in-the-loop gating + "don\'t ask again" rules | *new* |\n',
+             '| **SkillsProvider** | progressive discovery/loading of skills | M3 |\n',
+             '| **BackgroundAgentsProvider** | delegate work to sub-agents concurrently | *new* |\n',
+             '| **Looping** | keep re-invoking until the plan is done | *new* |\n',
+             '| **Web search** | real-time web search tool | *new* |\n',
+             '| **OpenTelemetry** | built-in tracing | M7 |\n',
+             '\n',
+             '**This notebook is self-contained.** Every battery below is a cell you can run,\n',
+             'and §15 rebuilds **Plan my next day at Cypher** end to end — plan, validate,\n',
+             'autonomous execution loop, and verified Excel agenda — without leaving Jupyter.']},
+ {'cell_type': 'markdown',
+  'id': '4b290b00',
+  'metadata': {},
+  'source': ['!!! warning "Version & experimental features"\n',
+             '    The harness ships in Agent Framework **core 1.13.0** (pinned by this\n',
+             "    workshop's `pyproject.toml`). `create_harness_agent` itself is a **stable**\n",
+             '    API, but a few batteries it can wire in — file access, background agents,\n',
+             '    looping — are still marked *experimental* and emit warnings. Fine for\n',
+             '    learning; pin versions in production. If `create_harness_agent` is missing,\n',
+             '    your install predates core 1.12.0; re-run [Setup](../setup.md).']},
+ {'cell_type': 'markdown',
+  'id': 'ac5d4922',
+  'metadata': {},
+  'source': ['## 1. Setup\n',
+             '\n',
+             'One cell of shared scaffolding used by the whole lab:\n',
+             '\n',
+             '- `HARNESS` — the token budgets and chat options every harness agent here gets.\n',
+             '- `render(...)` — a tiny streaming printer so you can *watch* the agent think,\n',
+             '  call tools, and search. Streaming emits one chunk per token, so tool calls are\n',
+             '  de-duplicated on `call_id` — otherwise a single file write prints 30+ lines.\n',
+             '- `WORK` — a scratch folder for everything the agent writes to disk.\n',
+             '\n',
+             'About `default_options={"store": False}`: some providers (the OpenAI Responses\n',
+             'API among them) keep conversation state **server-side** by default. The harness\n',
+             "wants the *local* history to be authoritative — that's the copy its compaction\n",
+             'and persistence operate on. `store=False` says "don\'t keep it on the server, keep\n',
+             'it here." It\'s a standard chat option, so this works on every provider.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '5dabe788',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:24:49.799095Z',
+                             'iopub.status.busy': '2026-08-07T16:24:49.798110Z',
+                             'iopub.status.idle': '2026-08-07T16:24:56.331835Z',
+                             'shell.execute_reply': '2026-08-07T16:24:56.330768Z'}},
+  'outputs': [],
+  'source': ['import pathlib\n',
+             'import shutil\n',
+             'import sys\n',
+             'import warnings\n',
+             '\n',
+             'REPO = next(p for p in [pathlib.Path.cwd(), *pathlib.Path.cwd().parents]\n',
+             '            if (p / "pyproject.toml").exists() and (p / "workshop_utils").is_dir())\n',
+             'sys.path.insert(0, str(REPO))\n',
+             'warnings.filterwarnings("ignore")  # silence experimental-feature warnings for the lab\n',
+             '\n',
+             'from workshop_utils import get_chat_client\n',
+             '\n',
+             'WORK = pathlib.Path.cwd() / ".harness" / "m4"  # scratch root (gitignored)\n',
+             'shutil.rmtree(WORK, ignore_errors=True)  # start every run from a clean slate\n',
+             'WORK.mkdir(parents=True, exist_ok=True)\n',
+             '\n',
+             '# Budgets + options shared by every harness agent in this notebook.\n',
+             'HARNESS = {\n',
+             '    "max_context_window_tokens": 128_000,\n',
+             '    "max_output_tokens": 4_096,\n',
+             '    "default_options": {"store": False},\n',
+             '}\n',
+             '\n',
+             '\n',
+             'async def render(agent, prompt, session, *, show_tools=True):\n',
+             '    """Stream one run: print the text, and one line per distinct tool call."""\n',
+             '    seen = set()\n',
+             '    async for update in agent.run(prompt, session=session, stream=True):\n',
+             '        for content in update.contents:\n',
+             '            kind = getattr(content, "type", "")\n',
+             '            if kind == "function_call" and show_tools:\n',
+             '                call_id = getattr(content, "call_id", None)\n',
+             '                if call_id not in seen:\n',
+             '                    seen.add(call_id)\n',
+             '                    print(f"\\n  [tool: {content.name}]", flush=True)\n',
+             '            elif kind == "search_tool_call" and show_tools:\n',
+             '                print("\\n  [web search]", flush=True)\n',
+             '            elif kind == "text":\n',
+             '                print(content.text, end="", flush=True)\n',
+             '    print()\n',
+             '\n',
+             '\n',
+             'print("provider client :", type(get_chat_client()).__name__)\n',
+             'print("repo root       :", REPO)\n',
+             'print("scratch folder  :", WORK)']},
+ {'cell_type': 'markdown',
+  'id': 'e8dcef4b',
+  'metadata': {},
+  'source': ['## 2. Anatomy: what `create_harness_agent` actually wires\n',
+             '\n',
+             'The factory needs only a **client**. The two token budgets switch on compaction.\n',
+             'Everything else is defaults.\n',
+             '\n',
+             'Rather than take the table above on trust, **print the assembled agent**. Those\n',
+             '`context_providers` and `middleware` lists are the batteries, in the order they\n',
+             'run.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '8aa639f0',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:24:56.346777Z',
+                             'iopub.status.busy': '2026-08-07T16:24:56.345773Z',
+                             'iopub.status.idle': '2026-08-07T16:24:57.028119Z',
+                             'shell.execute_reply': '2026-08-07T16:24:57.026107Z'}},
+  'outputs': [],
+  'source': ['from agent_framework import create_harness_agent\n',
+             '\n',
+             'agent = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="HarnessAgent",\n',
+             '    description="A batteries-included assistant that plans and tracks its work.",\n',
+             '    **HARNESS,\n',
+             ')\n',
+             '\n',
+             'print("context providers (run in this order, before every model call)")\n',
+             'for provider in agent.context_providers:\n',
+             '    print(f"   - {type(provider).__name__:<24} source_id={provider.source_id!r}")\n',
+             '\n',
+             'print("\\nmiddleware (outermost first)")\n',
+             'for mw in agent.middleware or []:\n',
+             '    print(f"   - {type(mw).__name__}")\n',
+             '\n',
+             'print("\\ntools auto-attached")\n',
+             'for tool in agent.default_options.get("tools") or []:\n',
+             '    print(f"   - {tool}")\n',
+             '\n',
+             'print(f"\\ncompaction strategy : {type(agent.compaction_strategy).__name__}")\n',
+             'print(f"telemetry source    : {agent.otel_provider_name}")\n',
+             'print(f"max_tokens          : {agent.default_options[\'max_tokens\']}")']},
+ {'cell_type': 'markdown',
+  'id': '52115f00',
+  'metadata': {},
+  'source': ['Read that output against the batteries table:\n',
+             '\n',
+             '| Printed | Battery |\n',
+             '|:--|:--|\n',
+             '| `InMemoryHistoryProvider` | conversation history (M3) |\n',
+             '| `CompactionProvider` + `ContextWindowCompactionStrategy` | context-window management |\n',
+             '| `TodoProvider` | planning & work tracking |\n',
+             '| `AgentModeProvider` | plan/execute modes |\n',
+             '| `FileMemoryProvider` | durable memory on disk |\n',
+             '| `ToolApprovalMiddleware` | human-in-the-loop gating |\n',
+             '| `MessageInjectionMiddleware` | lets a host push messages mid-run |\n',
+             "| `{'type': 'web_search'}` | the built-in web search tool |\n",
+             '\n',
+             'The harness also sets `require_per_service_call_history_persistence=True` — history\n',
+             "is saved after **every model call**, not just at the end of a turn. That's what makes\n",
+             'a long multi-tool run crash-safe.\n',
+             '\n',
+             "Now let's take each battery in turn."]},
+ {'cell_type': 'markdown',
+  'id': 'ed95f2a0',
+  'metadata': {},
+  'source': ['## 3. Battery — `TodoProvider`: the agent plans its own work\n',
+             '\n',
+             'The provider injects five tools (`todos_add`, `todos_complete`, `todos_remove`,\n',
+             '`todos_get_remaining`, `todos_get_all`) and re-injects the **current todo list** as\n',
+             'a message before every model call. So the agent always sees its own plan.\n',
+             '\n',
+             'Todo state lives in the **session**, not the agent — which means you can read it\n',
+             'back out and render it however you like.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '61ad146b',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:24:57.033120Z',
+                             'iopub.status.busy': '2026-08-07T16:24:57.033120Z',
+                             'iopub.status.idle': '2026-08-07T16:25:06.940448Z',
+                             'shell.execute_reply': '2026-08-07T16:25:06.939434Z'}},
+  'outputs': [],
+  'source': ['from agent_framework import TodoProvider\n',
+             '\n',
+             '\n',
+             'def provider_of(agent, provider_type):\n',
+             '    """Pull one of the harness\'s built-in context providers off the agent."""\n',
+             '    return next(p for p in agent.context_providers if isinstance(p, provider_type))\n',
+             '\n',
+             '\n',
+             'async def show_todos(agent, session):\n',
+             '    todo = provider_of(agent, TodoProvider)\n',
+             '    items = await todo.store.load_items(session, source_id=todo.source_id)\n',
+             '    if not items:\n',
+             '        print("  (no todos yet)")\n',
+             '        return items\n',
+             '    for item in items:\n',
+             '        mark = "x" if item.is_complete else " "\n',
+             '        print(f"  [{mark}] {item.id}. {item.title}")\n',
+             '    return items\n',
+             '\n',
+             '\n',
+             'session = agent.create_session()\n',
+             '\n',
+             'await render(\n',
+             '    agent,\n',
+             '    "I want to launch a personal blog. Use your todo tools to record a short plan "\n',
+             '    "of 3 concrete steps, then briefly summarise it. Don\'t do the work yet.",\n',
+             '    session,\n',
+             ')\n',
+             '\n',
+             'print("\\n--- todo state read back from the session ---")\n',
+             '_ = await show_todos(agent, session)']},
+ {'cell_type': 'markdown',
+  'id': 'ba778534',
+  'metadata': {},
+  'source': ['The agent called `todos_add` and the items are now durable session state. You never\n',
+             'wrote a planner — the provider supplied the tools and the model used them.']},
+ {'cell_type': 'markdown',
+  'id': '11bef3f0',
+  'metadata': {},
+  'source': ['## 4. Battery — `AgentModeProvider`: plan vs. execute\n',
+             '\n',
+             "The harness ships two modes, and they change the agent's *whole operating procedure*:\n",
+             '\n',
+             '| Mode | Behaviour |\n',
+             '|:--|:--|\n',
+             '| **plan** (default) | Interactive. Analyse, build a todo list, **ask clarifying questions**, '
+             'get approval before doing work. |\n',
+             "| **execute** | Autonomous. Make reasonable decisions alone, don't ask, mark todos complete, "
+             'keep going until done. |\n',
+             '\n',
+             'The agent can switch modes itself with the `mode_set` tool, and *you* can switch it\n',
+             'from the host with `set_agent_mode(...)`. Reading it is `get_agent_mode(...)`.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'a4136e5d',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:25:06.945017Z',
+                             'iopub.status.busy': '2026-08-07T16:25:06.945017Z',
+                             'iopub.status.idle': '2026-08-07T16:25:06.950597Z',
+                             'shell.execute_reply': '2026-08-07T16:25:06.950073Z'}},
+  'outputs': [],
+  'source': ['from agent_framework import AgentModeProvider, get_agent_mode, set_agent_mode\n',
+             '\n',
+             'mode = provider_of(agent, AgentModeProvider)\n',
+             'print("available modes :", list(mode.available_modes))\n',
+             'print("default mode    :", mode.default_mode)\n',
+             'print("this session    :", get_agent_mode(session))\n',
+             '\n',
+             '# The host can drive the mode directly — this is the hand-off used in section 15.\n',
+             'set_agent_mode(session, "execute")\n',
+             'print("after set_agent_mode:", get_agent_mode(session))\n',
+             '\n',
+             'set_agent_mode(session, "plan")  # put it back for the rest of this section\n',
+             'print("restored            :", get_agent_mode(session))']},
+ {'cell_type': 'markdown',
+  'id': '97459cdc',
+  'metadata': {},
+  'source': ['Switching modes externally also injects a **"mode changed"** notice into the next\n',
+             'turn. That matters: system instructions alone are often not enough to redirect a\n',
+             'model that has already seen its own `mode_set` call earlier in the history.']},
+ {'cell_type': 'markdown',
+  'id': '992745a0',
+  'metadata': {},
+  'source': ['## 5. Battery — `FileMemoryProvider`: memory that survives compaction\n',
+             '\n',
+             'In M3 you learned that context is finite and compaction eventually throws things\n',
+             'away. File memory is the escape hatch: the agent writes what matters to **real files**,\n',
+             'and gets back an index of them on every turn.\n',
+             '\n',
+             'Tools: `file_memory_write`, `file_memory_read`, `file_memory_ls`, `file_memory_grep`,\n',
+             '`file_memory_replace`, `file_memory_replace_lines`, `file_memory_delete`.\n',
+             '\n',
+             'By default the store is `{cwd}/agent-file-memory`, scoped **per session**. Here we\n',
+             "point it at our scratch folder so it's easy to inspect."]},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'ed2bb902',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:25:06.952655Z',
+                             'iopub.status.busy': '2026-08-07T16:25:06.952655Z',
+                             'iopub.status.idle': '2026-08-07T16:25:32.295307Z',
+                             'shell.execute_reply': '2026-08-07T16:25:32.288164Z'}},
+  'outputs': [],
+  'source': ['from agent_framework import FileSystemAgentFileStore\n',
+             '\n',
+             'MEMORY_DIR = WORK / "memory"\n',
+             '\n',
+             'memo_agent = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="MemoAgent",\n',
+             '    file_memory_store=FileSystemAgentFileStore(MEMORY_DIR),\n',
+             '    disable_web_search=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             'memo_session = memo_agent.create_session()\n',
+             '\n',
+             'await render(\n',
+             '    memo_agent,\n',
+             '    "Remember this for later: our production database is PostgreSQL 16 and it is "\n',
+             '    "deployed in eastus2. Save it to a memory file called infra.md.",\n',
+             '    memo_session,\n',
+             ')\n',
+             '\n',
+             'print("\\n--- files on disk ---")\n',
+             'for path in sorted(MEMORY_DIR.rglob("*")):\n',
+             '    if path.is_file():\n',
+             '        print(f"  {path.relative_to(MEMORY_DIR)}  ({path.stat().st_size} bytes)")']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '2bae4be6',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:25:32.308680Z',
+                             'iopub.status.busy': '2026-08-07T16:25:32.307683Z',
+                             'iopub.status.idle': '2026-08-07T16:25:36.811366Z',
+                             'shell.execute_reply': '2026-08-07T16:25:36.802197Z'}},
+  'outputs': [],
+  'source': ['# A later turn — the agent finds the memory through its index, not the chat history.\n',
+             'await render(memo_agent, "Which region is our production database in?", memo_session)']},
+ {'cell_type': 'markdown',
+  'id': 'ae8b034d',
+  'metadata': {},
+  'source': ['Note the extra files the provider maintains for you: a `memories.md` **index** and a\n',
+             '`*_description.md` companion per memory. The index is injected each turn, so the agent\n',
+             'knows what it has stored without reading every file — the same progressive-disclosure\n',
+             'idea as skills.']},
+ {'cell_type': 'markdown',
+  'id': 'f9c83252',
+  'metadata': {},
+  'source': ['## 6. Battery — web search\n',
+             '\n',
+             'If the client implements `SupportsWebSearchTool`, the harness attaches a web search\n',
+             "tool automatically. That's what turns a harness agent into a *researcher*."]},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '521953b4',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:25:36.830513Z',
+                             'iopub.status.busy': '2026-08-07T16:25:36.828629Z',
+                             'iopub.status.idle': '2026-08-07T16:25:46.329608Z',
+                             'shell.execute_reply': '2026-08-07T16:25:46.317517Z'}},
+  'outputs': [],
+  'source': ['search_agent = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="SearchAgent",\n',
+             '    agent_instructions="Answer in two sentences and cite your source inline as '
+             '[name](url).",\n',
+             '    disable_file_memory=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             '\n',
+             'await render(\n',
+             '    search_agent,\n',
+             '    "What is the Model Context Protocol? Search the web and cite a source.",\n',
+             '    search_agent.create_session(),\n',
+             ')']},
+ {'cell_type': 'markdown',
+  'id': 'ab1f79d1',
+  'metadata': {},
+  'source': ['!!! note "If your provider has no web search"\n',
+             "    You'll see a warning at construction time and the tool simply won't be attached.\n",
+             '    Pass `disable_web_search=True` to silence it — every other battery still works,\n',
+             "    and §15 will fall back to the model's own knowledge."]},
+ {'cell_type': 'markdown',
+  'id': 'f448a270',
+  'metadata': {},
+  'source': ['## 7. Battery — your own tools alongside the batteries\n',
+             '\n',
+             '`tools=[...]` takes exactly the function tools you wrote in M2. This is the\n',
+             '"meet your claw" pattern: harness machinery **plus** your domain functions.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '2dadaf09',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:25:46.347398Z',
+                             'iopub.status.busy': '2026-08-07T16:25:46.346400Z',
+                             'iopub.status.idle': '2026-08-07T16:26:04.998285Z',
+                             'shell.execute_reply': '2026-08-07T16:26:04.997262Z'}},
+  'outputs': [],
+  'source': ['from typing import Annotated\n',
+             '\n',
+             '\n',
+             'def get_stock_price(\n',
+             '    ticker: Annotated[str, "Stock ticker symbol, e.g. MSFT"],\n',
+             ') -> str:\n',
+             '    """Get the current share price for a ticker symbol."""\n',
+             '    prices = {"MSFT": 512.43, "AAPL": 271.10, "NVDA": 187.62}\n',
+             '    price = prices.get(ticker.upper())\n',
+             '    return f"{ticker.upper()}: ${price}" if price else f"No price on file for {ticker!r}."\n',
+             '\n',
+             '\n',
+             'claw = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="Claw",\n',
+             '    agent_instructions="You are a personal finance assistant. Be concise.",\n',
+             '    tools=[get_stock_price],\n',
+             '    disable_web_search=True,\n',
+             '    disable_file_memory=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             '\n',
+             'await render(\n',
+             '    claw,\n',
+             '    "What would 10 shares each of MSFT and NVDA cost me in total?",\n',
+             '    claw.create_session(),\n',
+             ')']},
+ {'cell_type': 'markdown',
+  'id': 'fd974ab3',
+  'metadata': {},
+  'source': ['## 8. Battery — `FileAccessProvider`: give the agent a folder\n',
+             '\n',
+             "File *memory* is the agent's private scratchpad. File *access* is a **shared**\n",
+             'folder you point it at — your data, your outputs. This is the .NET\n',
+             '`Harness_Step03_DataProcessing` scenario.\n',
+             '\n',
+             "It's opt-in: pass `file_access_store=...`. Tools: `file_access_read`, `ls`, `grep`,\n",
+             '`write`, `delete`, `replace`, `replace_lines`.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'd2ece399',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:05.001285Z',
+                             'iopub.status.busy': '2026-08-07T16:26:05.001285Z',
+                             'iopub.status.idle': '2026-08-07T16:26:20.409408Z',
+                             'shell.execute_reply': '2026-08-07T16:26:20.402125Z'}},
+  'outputs': [],
+  'source': ['DATA_DIR = WORK / "data"\n',
+             'DATA_DIR.mkdir(parents=True, exist_ok=True)\n',
+             '(DATA_DIR / "sales.csv").write_text(\n',
+             '    "region,quarter,revenue\\n"\n',
+             '    "emea,Q1,120000\\n"\n',
+             '    "emea,Q2,138000\\n"\n',
+             '    "amer,Q1,210000\\n"\n',
+             '    "amer,Q2,199000\\n",\n',
+             '    encoding="utf-8",\n',
+             ')\n',
+             '\n',
+             'data_agent = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="DataAgent",\n',
+             '    agent_instructions="You analyse CSV data files. Be concise.",\n',
+             '    file_access_store=FileSystemAgentFileStore(DATA_DIR),\n',
+             '    # Approvals are covered in section 9 — turn them off here so the cell runs unattended.\n',
+             '    file_access_disable_readonly_tool_approval=True,\n',
+             '    file_access_disable_write_tool_approval=True,\n',
+             '    disable_web_search=True,\n',
+             '    disable_file_memory=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             '\n',
+             'await render(\n',
+             '    data_agent,\n',
+             '    "Read sales.csv, work out total revenue per region, and write the answer to '
+             'summary.md.",\n',
+             '    data_agent.create_session(),\n',
+             ')\n',
+             '\n',
+             'print("\\n--- files on disk ---")\n',
+             'for path in sorted(DATA_DIR.iterdir()):\n',
+             '    print(f"  {path.name}")\n',
+             'print("\\n--- summary.md ---")\n',
+             'print((DATA_DIR / "summary.md").read_text(encoding="utf-8"))']},
+ {'cell_type': 'markdown',
+  'id': '95425c12',
+  'metadata': {},
+  'source': ['## 9. Battery — tool approval\n',
+             '\n',
+             'Notice we *disabled* approvals above. By default, file-access write tools **require\n',
+             'human approval**: the run stops and hands you back a `function_approval_request`\n',
+             'instead of doing the thing.\n',
+             '\n',
+             "The harness's built-in tools (`todos_*`, `file_memory_*`) register as\n",
+             '`never_require`, so a plain harness agent never interrupts you. Approval exists for\n',
+             'the batteries that touch the outside world.\n',
+             '\n',
+             'First, watch a run get gated:']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'ef6b5de4',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:20.426386Z',
+                             'iopub.status.busy': '2026-08-07T16:26:20.424391Z',
+                             'iopub.status.idle': '2026-08-07T16:26:27.142405Z',
+                             'shell.execute_reply': '2026-08-07T16:26:27.136358Z'}},
+  'outputs': [],
+  'source': ['GATED_DIR = WORK / "gated"\n',
+             'GATED_DIR.mkdir(parents=True, exist_ok=True)\n',
+             '\n',
+             'gated_agent = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="GatedAgent",\n',
+             '    file_access_store=FileSystemAgentFileStore(GATED_DIR),  # approvals left ON\n',
+             '    disable_web_search=True,\n',
+             '    disable_file_memory=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             '\n',
+             'result = await gated_agent.run(\n',
+             '    "Write a file called report.txt containing the text \'quarterly numbers\'.",\n',
+             '    session=gated_agent.create_session(),\n',
+             ')\n',
+             '\n',
+             'pending = [\n',
+             '    c\n',
+             '    for message in result.messages\n',
+             '    for c in message.contents\n',
+             '    if getattr(c, "type", "") == "function_approval_request"\n',
+             ']\n',
+             'print("assistant text :", repr(result.text))\n',
+             'print("pending approvals:", [c.function_call.name for c in pending])\n',
+             'print("files written  :", [p.name for p in GATED_DIR.iterdir()] or "none — the write was '
+             'gated")']},
+ {'cell_type': 'markdown',
+  'id': 'e7f3e043',
+  'metadata': {},
+  'source': ['Nothing was written. The agent is *waiting on you*.\n',
+             '\n',
+             'An interactive host answers by sending the approval back:\n',
+             '\n',
+             '```python\n',
+             'from agent_framework import Message, create_always_approve_tool_response\n',
+             '\n',
+             'responses = [create_always_approve_tool_response(req, reason="user clicked Allow") for req in '
+             'pending]\n',
+             'await agent.run(Message(role="user", contents=responses), session=session)\n',
+             '```\n',
+             '\n',
+             '`create_always_approve_tool_response` also records a **standing rule** — the\n',
+             '"don\'t ask again for this tool" checkbox — so subsequent calls sail through.\n',
+             '\n',
+             '!!! warning "Provider caveat"\n',
+             "    Replaying a *local* tool's approval request is not supported by every provider.\n",
+             '    The OpenAI Responses client serialises it as an MCP approval request and the\n',
+             "    service rejects it (`Expected an ID that begins with 'mcpr'`). Which is why this\n",
+             '    notebook demonstrates the second mechanism instead — **auto-approval rules** —\n',
+             "    which work everywhere and are what you'd want for a non-interactive job anyway.\n",
+             '\n',
+             '`auto_approval_rules` are predicates over the pending call. Return `True` and the\n',
+             'harness approves it without asking. Here: allow `.txt` writes, gate everything else.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '30c43a10',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:27.155396Z',
+                             'iopub.status.busy': '2026-08-07T16:26:27.153391Z',
+                             'iopub.status.idle': '2026-08-07T16:26:35.549972Z',
+                             'shell.execute_reply': '2026-08-07T16:26:35.546794Z'}},
+  'outputs': [],
+  'source': ['import json\n',
+             '\n',
+             '\n',
+             'def approve_txt_writes(function_call) -> bool:\n',
+             '    """Auto-approve writes to .txt files; anything else still needs a human."""\n',
+             '    raw = function_call.arguments or "{}"\n',
+             '    args = json.loads(raw) if isinstance(raw, str) else raw\n',
+             '    return str(args.get("file_name", "")).endswith(".txt")\n',
+             '\n',
+             '\n',
+             'auto_agent = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="AutoApproveAgent",\n',
+             '    file_access_store=FileSystemAgentFileStore(GATED_DIR),\n',
+             '    auto_approval_rules=[approve_txt_writes],\n',
+             '    disable_web_search=True,\n',
+             '    disable_file_memory=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             'auto_session = auto_agent.create_session()\n',
+             '\n',
+             'await render(\n',
+             '    auto_agent,\n',
+             '    "Write a file called report.txt containing the text \'quarterly numbers\'.",\n',
+             '    auto_session,\n',
+             ')\n',
+             'print("files written:", [p.name for p in GATED_DIR.iterdir()])']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'ef826e0e',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:35.558102Z',
+                             'iopub.status.busy': '2026-08-07T16:26:35.557106Z',
+                             'iopub.status.idle': '2026-08-07T16:26:37.470896Z',
+                             'shell.execute_reply': '2026-08-07T16:26:37.467341Z'}},
+  'outputs': [],
+  'source': ['# ...and a write the rule does NOT cover is still held for a human.\n',
+             'blocked = await auto_agent.run(\n',
+             '    "Now write a file called report.md containing the text \'markdown version\'.",\n',
+             '    session=auto_agent.create_session(),\n',
+             ')\n',
+             'still_pending = [\n',
+             '    c\n',
+             '    for message in blocked.messages\n',
+             '    for c in message.contents\n',
+             '    if getattr(c, "type", "") == "function_approval_request"\n',
+             ']\n',
+             'print("still pending :", [c.function_call.name for c in still_pending])\n',
+             'print("files on disk :", sorted(p.name for p in GATED_DIR.iterdir()))']},
+ {'cell_type': 'markdown',
+  'id': '2dd49b08',
+  'metadata': {},
+  'source': ['## 10. Battery — skills\n',
+             '\n',
+             'M3 introduced skills: expertise on disk, loaded only when relevant. The harness\n',
+             'takes a folder — `skills_paths=[REPO / "skills"]` — and discovers every `SKILL.md`\n',
+             'under it. This repo already ships one at `skills/unit-converter/`.\n',
+             '\n',
+             'That skill also ships a *script*, and running a script needs two extra things the\n',
+             "plain `skills_paths` shortcut can't give you (both familiar from M3):\n",
+             '\n',
+             '- a **`script_runner`**, which decides *how* a script executes — the framework\n',
+             '  deliberately refuses to shell out on your behalf;\n',
+             '- an **approval rule**, because skill tools are gated by default.\n',
+             '\n',
+             'So we build the provider by hand and pass it as `skills_provider=...`. The rest of\n',
+             'the harness is unchanged.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'b2ff993b',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:37.477901Z',
+                             'iopub.status.busy': '2026-08-07T16:26:37.476904Z',
+                             'iopub.status.idle': '2026-08-07T16:26:46.113438Z',
+                             'shell.execute_reply': '2026-08-07T16:26:46.112431Z'}},
+  'outputs': [],
+  'source': ['import subprocess\n',
+             '\n',
+             'from agent_framework import FileSkill, FileSkillScript, FileSkillsSource, SkillsProvider\n',
+             '\n',
+             '\n',
+             'def run_script(skill: FileSkill, script: FileSkillScript, args: list[str] | None = None) -> '
+             'str:\n',
+             '    """Execute a file skill\'s script as a local Python subprocess (same helper as M3)."""\n',
+             '    done = subprocess.run(\n',
+             '        [sys.executable, str(script.full_path), *(args or [])],\n',
+             '        capture_output=True,\n',
+             '        text=True,\n',
+             '        timeout=30,\n',
+             '    )\n',
+             '    return (done.stdout + done.stderr).strip() or "(no output)"\n',
+             '\n',
+             '\n',
+             'skilled = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="SkilledAgent",\n',
+             '    skills_provider=SkillsProvider(\n',
+             '        FileSkillsSource(str(REPO / "skills"), script_runner=run_script)\n',
+             '    ),\n',
+             '    auto_approval_rules=[SkillsProvider.all_tools_auto_approval_rule],\n',
+             '    disable_web_search=True,\n',
+             '    disable_file_memory=True,\n',
+             '    disable_todo=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             'print("providers:", [type(p).__name__ for p in skilled.context_providers])\n',
+             '\n',
+             '# execute mode, so it acts on the skill instead of proposing to.\n',
+             'skilled_session = skilled.create_session()\n',
+             'set_agent_mode(skilled_session, "execute")\n',
+             '\n',
+             'await render(\n',
+             '    skilled,\n',
+             '    "What skills do you have available? Then use one to convert 26.2 miles to kilometres.",\n',
+             '    skilled_session,\n',
+             ')']},
+ {'cell_type': 'markdown',
+  'id': 'd84c0bf9',
+  'metadata': {},
+  'source': ['Notice the tool sequence: `load_skill` → `read_skill_resource` → `run_skill_script`.\n',
+             "The model only pulled the skill's full instructions once it decided the skill was\n",
+             'relevant — the catalog it sees up front is one line per skill. That is *progressive\n',
+             "disclosure*, and it's why skills scale where a giant system prompt doesn't."]},
+ {'cell_type': 'markdown',
+  'id': '1d7aa4d3',
+  'metadata': {},
+  'source': ['## 11. Battery — background agents\n',
+             '\n',
+             '`background_agents=[...]` lets the harness agent **delegate**. It gets tools to start\n',
+             'a task on a named sub-agent, poll or wait for it, and collect results — so slow work\n',
+             'runs concurrently instead of blocking the main conversation. This is the .NET\n',
+             '`Harness_Step02` scenario.\n',
+             '\n',
+             '!!! warning "Trust boundary"\n',
+             '    Delegated agents receive text from this agent and their output flows back into its\n',
+             "    context. Only pass agents you've vetted."]},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'ff46b2e9',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:46.114438Z',
+                             'iopub.status.busy': '2026-08-07T16:26:46.114438Z',
+                             'iopub.status.idle': '2026-08-07T16:26:57.470652Z',
+                             'shell.execute_reply': '2026-08-07T16:26:57.469504Z'}},
+  'outputs': [],
+  'source': ['from agent_framework import Agent\n',
+             '\n',
+             'quote_agent = Agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="QuoteAgent",\n',
+             '    description="Looks up share prices for a ticker symbol.",\n',
+             '    instructions="You report share prices. Answer with just the ticker and price.",\n',
+             '    tools=[get_stock_price],\n',
+             ')\n',
+             '\n',
+             'delegator = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="Delegator",\n',
+             '    agent_instructions="Delegate price lookups to background agents, then summarise.",\n',
+             '    background_agents=[quote_agent],\n',
+             '    disable_web_search=True,\n',
+             '    disable_file_memory=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             'print("providers:", [type(p).__name__ for p in delegator.context_providers])\n',
+             '\n',
+             'await render(\n',
+             '    delegator,\n',
+             '    "Use a background agent to look up the price of AAPL, wait for it, and tell me the '
+             'result.",\n',
+             '    delegator.create_session(),\n',
+             ')']},
+ {'cell_type': 'markdown',
+  'id': 'b1d7d0d2',
+  'metadata': {},
+  'source': ['## 12. Battery — compaction\n',
+             '\n',
+             "The two numbers you've been passing all along:\n",
+             '\n',
+             '```python\n',
+             "max_context_window_tokens=128_000   # how big the model's window is\n",
+             "max_output_tokens=4_096             # how much you'll let it write per response\n",
+             '```\n',
+             '\n',
+             'From those the harness builds a `ContextWindowCompactionStrategy` and runs it in\n',
+             '**two places**:\n',
+             '\n',
+             '- **before** each model call — trims the outgoing messages so the request fits\n',
+             '- **after** each turn — compacts the persisted history in place\n',
+             '\n',
+             'Omit both numbers and compaction is silently **off** — the harness has no budget to\n',
+             "reason about. That's the single easiest harness mistake to make."]},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '1150da70',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:57.477366Z',
+                             'iopub.status.busy': '2026-08-07T16:26:57.476362Z',
+                             'iopub.status.idle': '2026-08-07T16:26:57.966284Z',
+                             'shell.execute_reply': '2026-08-07T16:26:57.966284Z'}},
+  'outputs': [],
+  'source': ['budgeted = create_harness_agent(client=get_chat_client(), **HARNESS)\n',
+             'unbudgeted = create_harness_agent(client=get_chat_client(), default_options={"store": '
+             'False})\n',
+             '\n',
+             'print("with budgets    :", type(budgeted.compaction_strategy).__name__)\n',
+             'print("  providers     :", [type(p).__name__ for p in budgeted.context_providers])\n',
+             'print()\n',
+             'print("without budgets :", budgeted.compaction_strategy is not None, "->", '
+             'unbudgeted.compaction_strategy)\n',
+             'print("  providers     :", [type(p).__name__ for p in unbudgeted.context_providers])\n',
+             'print("\\nNote the missing CompactionProvider in the unbudgeted agent.")']},
+ {'cell_type': 'markdown',
+  'id': '5eccbcfa',
+  'metadata': {},
+  'source': ['## 13. Battery — looping until the plan is done\n',
+             '\n',
+             'One `agent.run(...)` is one turn. A plan with five todos needs five turns — unless\n',
+             'you loop.\n',
+             '\n',
+             '`loop_should_continue` is a predicate checked after every iteration. The harness\n',
+             'ships the one you almost always want:\n',
+             '\n',
+             '- **`todos_remaining(looping_modes=["execute"])`** — keep going while any todo is\n',
+             '  open *and* the agent is in execute mode. Planning stays interactive; execution runs\n',
+             "  to completion. (This is the Python counterpart of .NET's\n",
+             '  `TodoCompletionLoopEvaluator`.)\n',
+             '- **`todos_remaining_message`** — between iterations, remind the agent which items\n',
+             '  are still open.\n',
+             '- **`loop_max_iterations`** — the safety net.\n',
+             '\n',
+             'Watch it drain a todo list on its own:']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'b6a2e96a',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:26:57.968690Z',
+                             'iopub.status.busy': '2026-08-07T16:26:57.968690Z',
+                             'iopub.status.idle': '2026-08-07T16:27:02.764772Z',
+                             'shell.execute_reply': '2026-08-07T16:27:02.763600Z'}},
+  'outputs': [],
+  'source': ['from agent_framework import todos_remaining, todos_remaining_message\n',
+             '\n',
+             'looper = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    name="Looper",\n',
+             '    agent_instructions=(\n',
+             '        "You answer short trivia questions. Work through your todo list one item at a "\n',
+             '        "time, answering each in a single sentence, and call todos_complete for each "\n',
+             '        "item as soon as you have answered it."\n',
+             '    ),\n',
+             '    loop_should_continue=todos_remaining(looping_modes=["execute"]),\n',
+             '    loop_next_message=todos_remaining_message,\n',
+             '    loop_max_iterations=6,\n',
+             '    disable_web_search=True,\n',
+             '    disable_file_memory=True,\n',
+             '    **HARNESS,\n',
+             ')\n',
+             'loop_session = looper.create_session()\n',
+             '\n',
+             '# Seed a plan, then hand off to execute mode so the loop engages.\n',
+             'await render(\n',
+             '    looper,\n',
+             '    "Use todos_add to record exactly three todos: "\n',
+             '    "(1) name the tallest mountain, (2) name the longest river, (3) name the largest ocean. '
+             '"\n',
+             '    "Do not answer them yet.",\n',
+             '    loop_session,\n',
+             ')\n',
+             'print("\\n--- plan ---")\n',
+             'await show_todos(looper, loop_session)']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': '9df7da7b',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:27:02.766581Z',
+                             'iopub.status.busy': '2026-08-07T16:27:02.766581Z',
+                             'iopub.status.idle': '2026-08-07T16:27:07.851909Z',
+                             'shell.execute_reply': '2026-08-07T16:27:07.851909Z'}},
+  'outputs': [],
+  'source': ['set_agent_mode(loop_session, "execute")\n',
+             'await render(looper, "Approved — work through every todo now.", loop_session)\n',
+             '\n',
+             'print("\\n--- after the loop ---")\n',
+             'items = await show_todos(looper, loop_session)\n',
+             'print(f"\\nopen items remaining: {sum(1 for i in items if not i.is_complete)}")']},
+ {'cell_type': 'markdown',
+  'id': 'b60f2218',
+  'metadata': {},
+  'source': ['You sent **one** message and the agent took several turns by itself, stopping the\n',
+             "moment the predicate went false. That's the whole autonomy story."]},
+ {'cell_type': 'markdown',
+  'id': '87cbbd26',
+  'metadata': {},
+  'source': ['## 14. Battery — observability\n',
+             '\n',
+             'Every harness agent is instrumented out of the box and reports under a dedicated\n',
+             'telemetry source, so harness traffic is distinguishable from hand-built agents.']},
+ {'cell_type': 'code',
+  'execution_count': None,
+  'id': 'ca2e0e59',
+  'metadata': {'execution': {'iopub.execute_input': '2026-08-07T16:27:07.854923Z',
+                             'iopub.status.busy': '2026-08-07T16:27:07.853919Z',
+                             'iopub.status.idle': '2026-08-07T16:27:08.112627Z',
+                             'shell.execute_reply': '2026-08-07T16:27:08.111618Z'}},
+  'outputs': [],
+  'source': ['print("default source :", agent.otel_provider_name)\n',
+             '\n',
+             'custom = create_harness_agent(\n',
+             '    client=get_chat_client(),\n',
+             '    otel_provider_name="cypher.workshop.m4",\n',
+             '    **HARNESS,\n',
+             ')\n',
+             'print("custom source  :", custom.otel_provider_name)']},
+ {'cell_type': 'markdown',
+  'id': '2fcc6096',
+  'metadata': {},
+  'source': ['Point an OTLP exporter at it and you get spans for every model call, tool call, and\n',
+             'compaction pass for free. **M7 · Operationalizing** wires this to a real backend.']}]
 
-# NOTE: built-in web search requires a provider/tool that supports it (e.g. Foundry/
-# OpenAI Responses). If your provider lacks it, pass disable_web_search=True above.
-print(researcher)'''
-    ),
-    md(
-        """\
-!!! tip "From batteries-included back to first principles"
-    The harness isn't magic — it's the M1–M3 concepts composed:
-    *tool loop (M2) + sessions & memory & compaction (M3) + planning + telemetry*.
-    Knowing each piece means you can confidently **turn batteries off** when a
-    use-case needs something leaner."""
-    ),
-    md(
-        """\
-## 5. The interactive research assistant (optional, local)
+def main():
+    cells = [nbformat.from_dict(c) for c in BATTERY_CELLS]
+    cells[0].source += "\n\n[Download this notebook](https://monuminu.github.io/Cypher-workshop26/modules/04-agent-harness/04-agent-harness.ipynb)"
+    cells.append(md("""## 15. Plan my next day at Cypher, end to end
 
-The upstream sample `02-agents/harness/harness_research.py` turns this into a full
-REPL: type a topic, watch it search the web (`🌐`), plan with todos, and stream a
-cited report — saving the report to **durable file memory** so it survives
-compaction.
+Rebuild the [opening demo](00-cypher-agenda-demo.ipynb) using the batteries above.
+The business task and domain tools are identical for both agents. Inspect the
+harness completion predicate: it combines task state with independent workbook
+validation. Do not infer reliability from a single run or require the baseline to fail.
+"""))
+    cells.extend(application_cells())
+    cells.append(md("""## Your turn: change the runtime, measure the result
 
-Run it locally from the repo root (needs a web-search-capable provider). The
-sample isn't part of this repo — grab it from the Agent Framework repository:
+1. **Disable completion checks.** Set `gate.enabled = False`, construct a fresh pair
+   with a new `RUN`, and repeat with the same captured schedule and profile. Keep
+   the final independent audit enabled. Compare actual outcomes; failure is not required.
+2. **Disable todos.** Add `disable_todo=True` and retain workbook-driven completion.
+   Notice that task visibility and artifact verification are separate capabilities.
+3. **Create an infeasible profile.** Require two overlapping sessions. Keep the
+   resource limits. Expect an honest draft or explanation, not fabricated times.
+4. **Restart with persisted preferences.** After a run, save `RUN` below, restart the
+   kernel, and execute the recovery cell. Inspect the restored session ID and profile
+   without any model calls. Recreate the harness using the same memory directory and
+   use `restored_session` for a follow-up; point `harness_tools` at `restored_profile`.
+   The host checkpoint restores conversation/todo state; FileMemoryProvider stores
+   its own memory files. These are distinct from merely continuing a live chat.
+5. **Inspect file memory.** List the memory directory and show the preference file
+   only if the agent actually wrote one. Do not claim durable agent memory from the
+   host's `profile.json` alone.
 
-```bash
-# Download the sample from microsoft/agent-framework, then run it directly:
-#   python/samples/02-agents/harness/harness_research.py
-python harness_research.py
-```
+The compact task need not trigger compaction, skills, or background agents.
+Use the dedicated battery exercises to demonstrate those capabilities.
+"""))
+    cells.append(code('''# Safe recovery exercise: explicitly choose a completed run directory.
+# This cell makes no model calls and does not fetch or reuse old schedule data for a new comparison.
+import json
+import pathlib
+import sys
+from agent_framework import AgentSession
 
-We don't run the interactive loop in the notebook (it blocks on `input()`), but
-the agent you built in section 3 already has all the same machinery."""
-    ),
-    md(
-        """\
-## 🧪 Your turn
+REPO = next(p for p in [pathlib.Path.cwd(), *pathlib.Path.cwd().parents]
+            if (p / "workshop_utils").is_dir())
+sys.path.insert(0, str(REPO))
+from workshop_utils.agenda import Profile
 
-1. Add a custom tool from M2 (e.g. `get_weather`) via `tools=[...]` and ask a task
-   that needs both planning *and* the tool.
-2. Set `disable_todo=True` and re-run the Kyoto task — notice the agent no longer
-   externalizes a plan. That contrast *is* the value of the TodoProvider.
-3. Read the harness table again and map each row to where you built it by hand in
-   M2–M3. The harness is your M1–M3 knowledge, assembled.
+RECOVER_RUN = None  # Set pathlib.Path("...") to the RUN printed by your prior execution.
+if RECOVER_RUN is not None:
+    recovery = pathlib.Path(RECOVER_RUN) / "harness"
+    restored_profile = Profile.load(recovery / "profile.json")
+    restored_session = AgentSession.from_dict(json.loads((recovery / "session.json").read_text(encoding="utf-8")))
+    print("Restored session:", restored_session.session_id)
+    print("Restored profile:", restored_profile)
+    print("Memory files:", [str(p.relative_to(recovery)) for p in (recovery / "memory").rglob("*") if p.is_file()])
+else:
+    print("Choose RECOVER_RUN to demonstrate a real restart.")'''))
+    cells.append(md("Continue to [M5 · Multi-Agent Orchestration](05-orchestration.ipynb)."))
+    for i, cell in enumerate(cells):
+        if i >= len(BATTERY_CELLS):
+            cell.id = f"m4-agenda-{i:02d}"
+        if cell.cell_type == "code":
+            cell.outputs = []
+            cell.execution_count = None
+    write_notebook(str(ROOT / "docs/modules/04-agent-harness.ipynb"), cells)
 
----
-
-✅ **You assembled a complete agent.** Now make several of them collaborate.
-→ **[M5 · Multi-Agent Orchestration](05-orchestration.ipynb)**"""
-    ),
-]
-
-write_notebook("docs/modules/04-agent-harness.ipynb", cells)
+if __name__ == "__main__":
+    main()

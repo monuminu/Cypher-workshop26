@@ -57,6 +57,101 @@ python -m ipykernel install --user --name cypher-workshop26 --display-name "Cyph
 
 When you open a lab notebook, select the **Cypher 2026 Workshop** kernel.
 
+## Cypher agenda demo
+
+The [opening demo](modules/00-cypher-agenda-demo.ipynb) and the final application in
+[M4](modules/04-agent-harness.ipynb) need three additional libraries. Install them
+in the same environment as your notebook kernel:
+
+```bash
+pip install -e ".[docs,agenda]"
+python -m playwright install chromium
+```
+
+On Linux, use `python -m playwright install --with-deps chromium` if browser system
+libraries are missing. The live source is the
+[official Cypher schedule](https://cypher.analyticsindiamag.com/schedule/).
+The collector opens each day and reads session details without signing in or
+adding events to a calendar. It may take several minutes; run it before the
+8–10 minute demonstration starts. Both agents then share that one fresh observation.
+
+**Source preflight — no model calls:**
+
+```bash
+python scripts/rehearse_agenda.py
+```
+
+The default day is the next published conference day in India time. For a rehearsal,
+or after the event, add `--day YYYY-MM-DD` using a date actually in the retrieved
+schedule. No previous schedule is substituted automatically.
+
+**Explicit model rehearsal** (uses your configured provider and may incur charges):
+
+```bash
+python scripts/rehearse_agenda.py --execute --initial-seconds 120 --revision-seconds 60 --max-model-calls 16
+```
+
+The same limits apply to both agents. The harness additionally has a four-iteration
+completion loop, within those limits. Timeouts and call-limit exits are reported as
+unfinished. Client cancellation cannot guarantee that an already submitted provider
+request stops billing. No model call is made by the documentation build or offline tests.
+In the notebook, deliberately change `RUN_AGENTS = False` to `True` to execute agents.
+
+Artifacts are saved under the printed `.harness/agenda/<run-id>/` directory: the
+captured schedule, separate basic/harness profiles, session checkpoints, initial and
+revised Excel workbooks, and result reports. These files are ignored by Git. Workbook
+audit cells describe a frozen run; change the notebook profile and regenerate rather
+than editing an exported workbook and expecting its audit to recalculate.
+
+### Fresh manual import when live access fails
+
+1. Open the official schedule and download its PDF or copy the schedule into a UTF-8
+   text file **during this run**. Note the actual capture timestamp with timezone.
+2. Extract the source and create a review table locally:
+
+    ```python
+    from pathlib import Path
+    from workshop_utils.agenda_source import prepare_manual_import
+    raw, table = prepare_manual_import(Path(".harness/cypher-schedule.pdf"),
+                                       Path(".harness/manual-review"))
+    print(raw, table)
+    ```
+
+3. Review `reviewed-sessions.tsv`, checking the full day(s) against the official
+   source. The official PDF's labeled columns produce candidate rows; other layouts
+   produce an empty review table for transcription. Fix incomplete fields and any
+   `REVIEW_REQUIRED` access values. Extraction never guesses an unlabeled hall.
+   The table has these exact tab-separated columns:
+   `id`, `title`, `start`, `end`, `hall`, `speakers`, `description`, `category`,
+   `access`, `source_url`. Use source IDs when available, otherwise unique IDs such
+   as `manual-001`. Times must be ISO timestamps including date and `+05:30`.
+   `access` is `standard` or `learning_or_vip`; do not guess unknown restrictions.
+   Keep missing descriptions/speakers empty. Supply the official source link.
+4. Set the notebook's `MANUAL_TSV`, `CAPTURED_AT`, and `MANUAL_REVIEWED = True`, or run:
+
+    ```bash
+    python scripts/rehearse_agenda.py --manual-tsv .harness/manual-review/reviewed-sessions.tsv --captured-at YOUR_ACTUAL_ISO_TIMESTAMP --reviewed
+    ```
+
+Manual imports must be reviewed and captured within the last 12 hours. The workbook
+records their method and timestamp. No model knowledge, old replay, or synthetic test
+fixture substitutes for the official schedule. Source warnings remain visible; a
+recommendation is still provisional when the published schedule is provisional.
+
+### Offline checks
+
+```bash
+python -m unittest discover -s tests -v
+python scripts/gen_agenda_demo.py
+python scripts/gen_m4.py
+mkdocs build --strict
+```
+
+Tests use explicitly synthetic sessions and scripted model responses. They test
+constraints, artifact verification, and runtime control without paid calls, and do
+not establish how a live model will rank sessions. Rehearse with your chosen model
+before presenting. A successful baseline is a valid result, not a failed demo.
+
 ---
 
 ## 4. Pick your model provider

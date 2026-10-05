@@ -15,6 +15,12 @@ OpenAI, Azure OpenAI, Anthropic, Ollama, AWS Bedrock, or Google Gemini — you c
 
 ## What you'll build
 
+Open with **[Plan my next day at Cypher](docs/modules/00-cypher-agenda-demo.ipynb)**:
+an 8–10 minute comparison of a basic agent and a harness-equipped agent curating a
+personal conference agenda in Excel. Both use the same live source and tools;
+independent checks assess the exported workbooks. Module 4 explains the runtime.
+See [demo setup and rehearsal](docs/setup.md#cypher-agenda-demo).
+
 Starting from a single LLM call, you assemble a complete **agent harness** —
 tools, memory, planning, multi-agent orchestration, evaluation, and observability.
 

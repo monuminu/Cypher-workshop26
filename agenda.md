@@ -13,6 +13,12 @@
 
 ## Schedule at a Glance
 
+Use the first **8–10 minutes** of the introduction for
+[Plan my next day at Cypher](docs/modules/00-cypher-agenda-demo.ipynb).
+Retrieve the live source before presenting. Compare the two Excel workbooks,
+change the participant's availability, and revisit the implementation in
+[Module 4](docs/modules/04-agent-harness.ipynb). The eight labs retain their numbering.
+
 | Time | Session | Format |
 |:---|:---|:---:|
 | 9:00 - 9:30 | Welcome & Introduction to AI Agents | Lecture |

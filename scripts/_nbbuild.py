@@ -37,6 +37,6 @@ def write_notebook(path: str, cells: list, *, kernel_display: str = "Cypher 2026
             "language_info": {"name": "python", "version": "3.12"},
         }
     )
-    with open(path, "w", encoding="utf-8") as fh:
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
         nbformat.write(nb, fh)
     print(f"wrote {path} ({len(cells)} cells)")

@@ -28,6 +28,9 @@ site/
 .agent_memory/
 .harness/
 
+# Agenda exports, manual source captures, comparisons and checkpoints belong in .harness/.
+# Do not commit participant profiles, provider traces, or generated workbooks.
+
 # OS / editor
 .DS_Store
 .idea/

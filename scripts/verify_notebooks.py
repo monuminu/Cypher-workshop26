@@ -137,12 +137,16 @@ def main() -> int:
     parser.add_argument("--model", help="set OPENAI_CHAT_MODEL for this run (e.g. gpt-4o)")
     args = parser.parse_args()
 
+    if args.only and any("00-cypher-agenda-demo".startswith(p) for p in args.only):
+        parser.error("Use scripts/rehearse_agenda.py --execute for the opening demo's bounded model comparison.")
+
     if args.model:
         import os
 
         os.environ["OPENAI_CHAT_MODEL"] = args.model
 
-    notebooks = sorted(MODULES_DIR.glob("*.ipynb"))
+    # The opener has its own explicit execution gate and source preflight.
+    notebooks = sorted(n for n in MODULES_DIR.glob("*.ipynb") if not n.name.startswith("00-"))
     if args.only:
         notebooks = [n for n in notebooks if any(n.name.startswith(p) for p in args.only)]
     if not notebooks:

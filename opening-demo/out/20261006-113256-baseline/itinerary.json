@@ -1,0 +1,382 @@
+{
+ "days": [
+  {
+   "day": 1,
+   "items": [
+    {
+     "session_id": "D1-H1-1000",
+     "title": "Beyond vibe coding: Mastering the AI-native SDLC from code to production",
+     "reason": "Starts with the engineering discipline Priya cares about: using AI across planning, coding, testing, modernization and deployment while preserving quality, security and control—directly relevant to shipping GenAI features beyond prototypes.",
+     "question": "Where do you recommend inserting objective eval gates in an AI-native SDLC so AI-generated code cannot move from prototype to production on vibes alone?",
+     "start": "10:00",
+     "end": "10:30",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Nagendra Bangalore",
+       "company": "IBM"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1100",
+     "title": "Your Agent Stack Is Broken at the Bottom",
+     "reason": "Targets the data-layer bottlenecks that production agents hit: concurrency, real-time access patterns, scale and cost—useful for agent systems serving fintech workloads.",
+     "question": "For autonomous agents issuing machine-speed queries, what workload signal tells you the database layer is becoming the bottleneck before customer-facing latency or cost spikes?",
+     "start": "11:00",
+     "end": "11:25",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Rakesh Puttaswamy",
+       "company": "ClickHouse"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1200",
+     "title": "From AI Demos to Production: What It Really Takes to Build Enterprise-Ready AI - Moving beyond POCs into architecture, reliability, evaluation, security and scale.",
+     "reason": "A near-perfect match for Priya’s production focus: reliability, evaluation, security, guardrails, right-sized LLMs and cost/accuracy/throughput trade-offs after the POC stage.",
+     "question": "When balancing throughput, accuracy and cost with right-sized LLMs, what evaluation design best detects regressions caused by model or prompt changes in production?",
+     "start": "12:00",
+     "end": "12:25",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Bhanu Prasad Mahanti",
+       "company": "Tiger Analytics"
+      },
+      {
+       "name": "Sri Vallabha Deevi",
+       "company": "Tiger Analytics"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1230",
+     "title": "Lunch",
+     "reason": "Protected lunch block in Hall 3; it avoids Priya’s 14:00–15:00 sprint review call and keeps the afternoon clash-free.",
+     "start": "12:30",
+     "end": "13:30",
+     "hall": 3,
+     "category": "Break / Lunch",
+     "speakers": []
+    },
+    {
+     "session_id": "D1-H3-1520",
+     "title": "The Missing Infrastructure Behind India’s AI Ambition",
+     "reason": "Gives a data-infrastructure view of model-ready, representative, consented data—important for robust India-scale LLM products and multilingual fintech experiences.",
+     "question": "How would you measure whether an Indic/code-switched dataset is truly model-ready for reliability-sensitive agent workflows rather than merely large?",
+     "start": "15:20",
+     "end": "15:40",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Vivekanand Pani",
+       "company": "Coremantle"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1635",
+     "title": "Build with Bob: It's More Than Just a Vibe",
+     "reason": "Hands-on developer workshop for AI-powered app building, API integration, debugging and modernization—good practical exposure after the morning SDLC talks.",
+     "question": "In the lab workflow, what guardrails or review steps prevent AI-assisted modernization from introducing subtle API-contract or security regressions?",
+     "start": "16:35",
+     "end": "17:35",
+     "hall": 3,
+     "category": "Workshop",
+     "speakers": [
+      {
+       "name": "HS Manoj Kumar",
+       "company": "IBM"
+      },
+      {
+       "name": "Aanchal Narendran",
+       "company": "IBM"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1930",
+     "title": "Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents",
+     "reason": "Priya’s must-attend and the deepest fit: enterprise agent runtime architecture covering skill discovery, context compaction, delegation, verification loops, identity, observability and governance.",
+     "question": "For a fintech agent that can execute tools, which verification loop and identity-propagation pattern would you make mandatory before allowing high-risk actions?",
+     "start": "19:30",
+     "end": "21:00",
+     "hall": 3,
+     "category": "Workshop",
+     "speakers": [
+      {
+       "name": "Manoranjan Rajguru",
+       "company": "Microsoft"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 2,
+   "items": [
+    {
+     "session_id": "D2-H1-1000",
+     "title": "The Agentic Platform: Powering Operations for Real Business Outcomes",
+     "reason": "Shows how to move agentic AI from experiments into responsible, scalable operations with orchestration, context, enterprise integration and governance.",
+     "question": "What platform primitive should teams standardize first—context, orchestration, integration or governance—if they want measurable outcomes without locking themselves into one agent framework?",
+     "start": "10:00",
+     "end": "10:30",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Rakesh Shinde",
+       "company": "Genpact"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H1-1035",
+     "title": "AI can build almost anything. What should we build?",
+     "reason": "Addresses the economics Priya flagged: lower build cost, hidden model dependency costs, token economics and using judgment to avoid shipping low-value AI work.",
+     "question": "How do you quantify the opportunity cost of building an AI feature fast when proprietary data, model dependency and token economics are still uncertain?",
+     "start": "10:35",
+     "end": "10:55",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Jennifer Mecherippady",
+       "company": "CGI"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H2-1305",
+     "title": "Lunch",
+     "reason": "Lunch after Priya’s 11:00–13:00 booth duty; leaves enough time to move to the 14:30 Hall 2 session.",
+     "start": "13:05",
+     "end": "14:05",
+     "hall": 2,
+     "category": "Break / Lunch",
+     "speakers": []
+    },
+    {
+     "session_id": "D2-H2-1430",
+     "title": "Beyond Agents: Building Systems of Enterprise Intelligence",
+     "reason": "Connects isolated agents to coordinated enterprise intelligence, focusing on coordination tax, economics and intelligence yield—key for multi-agent production architecture.",
+     "question": "What metric have you found most useful for detecting Coordination Tax when several agents pursue competing objectives across enterprise workflows?",
+     "start": "14:30",
+     "end": "14:55",
+     "hall": 2,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Yeshwant Nayak",
+       "company": "Relanto"
+      },
+      {
+       "name": "TP Vincent",
+       "company": "Relanto"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H3-1520",
+     "title": "Building Voice AI from India, for India, and for the world",
+     "reason": "Useful for production AI interfaces at India scale: multilingual support, code-switching, accents, noisy settings, real-time constraints and cost-effective infrastructure.",
+     "question": "For multilingual, code-switched voice AI, which reliability metric best captures failures that standard word-error-rate hides in real customer interactions?",
+     "start": "15:20",
+     "end": "15:40",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Sneha Roy",
+       "company": "Murf.AI"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H1-1610",
+     "title": "Operations + AI: Beyond Automation: Reimagining Supply Chains, Manufacturing and Operations with AI",
+     "reason": "Broadens Priya’s production lens from model behavior to operating models: sensing, predicting, deciding and scaling AI beyond pilots with measurable business value.",
+     "question": "When moving from isolated AI use cases to an integrated operating model, how do you prevent local automations from optimizing against the global business outcome?",
+     "start": "16:10",
+     "end": "16:30",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Shashi Mohan Singh",
+       "company": "Reliance Consumers"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H3-1800",
+     "title": "Agentic Data Cloud: From building the analytics data foundation with Knowledge Catalog, federating it with transactional data to generating advanced insights using Agentic Intelligence.",
+     "reason": "Hands-on workshop on knowledge catalogs, data federation and data agents—directly relevant to building grounded, enterprise-grade agents over transactional data.",
+     "question": "In the hands-on architecture, how do you enforce lineage and access controls when a data agent federates cataloged analytics data with live transactional sources?",
+     "start": "18:00",
+     "end": "19:30",
+     "hall": 3,
+     "category": "Workshop",
+     "speakers": [
+      {
+       "name": "Abirami Sukumaran",
+       "company": "Google Cloud"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 3,
+   "items": [
+    {
+     "session_id": "D3-H1-1000",
+     "title": "How to Build Your Enterprise AI Stack",
+     "reason": "Frames the full AI stack—models, data, compute, infrastructure, talent and applications—helping Priya place agent engineering choices in a broader enterprise architecture.",
+     "question": "For an Indian fintech startup, which layer of the enterprise AI stack is most dangerous to outsource too early: data, models, evaluation infrastructure, or deployment runtime?",
+     "start": "10:00",
+     "end": "10:30",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Pratyush Kumar",
+       "company": "Sarvam AI"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H1-1035",
+     "title": "Consuming AI at Scale: Lessons from a Regulated Industry",
+     "reason": "Direct fintech relevance: integrating third-party AI in banking operations while balancing innovation with regulatory obligations.",
+     "question": "What due-diligence evidence should a regulated bank require before allowing a third-party AI component into a customer-impacting workflow?",
+     "start": "10:35",
+     "end": "10:55",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Mridul Sharma",
+       "company": "Jio Credit Limited"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H3-1130",
+     "title": "Secure Your Agentic Future: No More Rogue Agents",
+     "reason": "Matches Priya’s secure-agent interest with a practical blueprint for discovering, onboarding, protecting and governing agents in sensitive environments.",
+     "question": "How should agent identity and lifecycle management differ from human/service-account IAM when agents can dynamically discover tools and act autonomously?",
+     "start": "11:30",
+     "end": "11:55",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Manish Kumar",
+       "company": "Okta"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H3-1200",
+     "title": "Crash. Resume. Repeat: Building Agents That Don't Die",
+     "reason": "Deep production reliability fit: durable execution for multi-step agents that survive crashes, retries, timeouts and partial progress without losing state.",
+     "question": "How do you design idempotency and compensation when a resumed agent must avoid re-running a tool call that already succeeded but produced an external side effect?",
+     "start": "12:00",
+     "end": "12:25",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Shubham Londhe",
+       "company": "Temporal Technologies"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H1-1305",
+     "title": "The Agent Economy: Who owns the customer when the agent is the interface?",
+     "reason": "Satisfies the panel requirement and is strategically relevant to fintech: if agents choose cards, products or merchants, ownership of the customer and transaction becomes a core product risk.",
+     "question": "In the banking example, what disclosure or control should be mandatory when an agent selects a payment instrument on behalf of a user?",
+     "start": "13:05",
+     "end": "13:45",
+     "hall": 1,
+     "category": "Panel Discussion",
+     "speakers": [
+      {
+       "name": "Sateesh Gottumukkala",
+       "company": "EPAM Systems"
+      },
+      {
+       "name": "Ketan Lodaya",
+       "company": "Gulf Oil India"
+      },
+      {
+       "name": "Manish Mittal",
+       "company": "Axtria"
+      },
+      {
+       "name": "Faye D'Souza",
+       "company": ""
+      },
+      {
+       "name": "Vikram Singh",
+       "company": "EXL"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H1-1345",
+     "title": "Lunch",
+     "reason": "Lunch immediately after the Hall 1 panel; keeps the afternoon schedule relaxed and leaves enough walking time for the later Hall 3 workshop.",
+     "start": "13:45",
+     "end": "14:45",
+     "hall": 1,
+     "category": "Break / Lunch",
+     "speakers": []
+    },
+    {
+     "session_id": "D3-H1-1530",
+     "title": "The Trust Deficit: Building Responsible AI in a Regulated, Risk-Heavy Business",
+     "reason": "Strong fintech fit: covers responsible AI, explainability, oversight, bias mitigation, governance and human accountability in financial services.",
+     "question": "Which responsible-AI control is most often missing when financial institutions move from compliance documentation to AI systems that are trustworthy by design?",
+     "start": "15:30",
+     "end": "15:50",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Ramesh Aithal",
+       "company": "L&T Finance"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H3-1610",
+     "title": "From Idea to Production: Build Enterprise-Grade Applications with Agentic AI",
+     "reason": "Final hands-on workshop before Priya leaves for her flight: practical agentic AI development with app building, API work, debugging and production-oriented workflows.",
+     "question": "During the workshop, where would you add automated tests or eval harnesses so AI-assisted development produces production-grade applications rather than just faster demos?",
+     "start": "16:10",
+     "end": "17:10",
+     "hall": 3,
+     "category": "Workshop",
+     "speakers": [
+      {
+       "name": "Anusha Jain",
+       "company": "IBM"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "summary": "A production-agent-heavy agenda for Priya: 19 non-lunch sessions across all 3 days, including 4 workshops and 1 panel. The plan avoids her sprint review, booth duty and flight cutoff, includes lunch daily, preserves 5-minute hall-switching buffers, and emphasizes agent harnesses, reliability, governance, evaluation, data foundations, security and AI economics."
+}

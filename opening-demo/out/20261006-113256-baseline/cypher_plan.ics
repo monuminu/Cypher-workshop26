@@ -1,0 +1,180 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Cypher Concierge Demo//EN
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D1-H1-1000@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T100000
+DTEND;TZID=Asia/Kolkata:20261007T103000
+SUMMARY:Beyond vibe coding: Mastering the AI-native SDLC from code to production
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:Where do you recommend inserting objective eval gates in an AI-native SDLC so AI-generated code cannot move from prototype to production on vibes alone?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D1-H3-1100@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T110000
+DTEND;TZID=Asia/Kolkata:20261007T112500
+SUMMARY:Your Agent Stack Is Broken at the Bottom
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:For autonomous agents issuing machine-speed queries\, what workload signal tells you the database layer is becoming the bottleneck before customer-facing latency or cost spikes?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D1-H3-1200@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T120000
+DTEND;TZID=Asia/Kolkata:20261007T122500
+SUMMARY:From AI Demos to Production: What It Really Takes to Build Enterprise-Ready AI - Moving beyond POCs into architecture\, reliability\, evaluation\, security and scale.
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:When balancing throughput\, accuracy and cost with right-sized LLMs\, what evaluation design best detects regressions caused by model or prompt changes in production?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D1-H3-1230@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T123000
+DTEND;TZID=Asia/Kolkata:20261007T133000
+SUMMARY:Lunch
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D1-H3-1520@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T152000
+DTEND;TZID=Asia/Kolkata:20261007T154000
+SUMMARY:The Missing Infrastructure Behind India’s AI Ambition
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:How would you measure whether an Indic/code-switched dataset is truly model-ready for reliability-sensitive agent workflows rather than merely large?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D1-H3-1635@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T163500
+DTEND;TZID=Asia/Kolkata:20261007T173500
+SUMMARY:Build with Bob: It's More Than Just a Vibe
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:In the lab workflow\, what guardrails or review steps prevent AI-assisted modernization from introducing subtle API-contract or security regressions?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D1-H3-1930@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T193000
+DTEND;TZID=Asia/Kolkata:20261007T210000
+SUMMARY:Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:For a fintech agent that can execute tools\, which verification loop and identity-propagation pattern would you make mandatory before allowing high-risk actions?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D2-H1-1000@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T100000
+DTEND;TZID=Asia/Kolkata:20261008T103000
+SUMMARY:The Agentic Platform: Powering Operations for Real Business Outcomes
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:What platform primitive should teams standardize first—context\, orchestration\, integration or governance—if they want measurable outcomes without locking themselves into one agent framework?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D2-H1-1035@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T103500
+DTEND;TZID=Asia/Kolkata:20261008T105500
+SUMMARY:AI can build almost anything. What should we build?
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:How do you quantify the opportunity cost of building an AI feature fast when proprietary data\, model dependency and token economics are still uncertain?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D2-H2-1305@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T130500
+DTEND;TZID=Asia/Kolkata:20261008T140500
+SUMMARY:Lunch
+LOCATION:Hall 2, KTPO Bengaluru
+DESCRIPTION:
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D2-H2-1430@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T143000
+DTEND;TZID=Asia/Kolkata:20261008T145500
+SUMMARY:Beyond Agents: Building Systems of Enterprise Intelligence
+LOCATION:Hall 2, KTPO Bengaluru
+DESCRIPTION:What metric have you found most useful for detecting Coordination Tax when several agents pursue competing objectives across enterprise workflows?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D2-H3-1520@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T152000
+DTEND;TZID=Asia/Kolkata:20261008T154000
+SUMMARY:Building Voice AI from India\, for India\, and for the world
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:For multilingual\, code-switched voice AI\, which reliability metric best captures failures that standard word-error-rate hides in real customer interactions?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D2-H1-1610@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T161000
+DTEND;TZID=Asia/Kolkata:20261008T163000
+SUMMARY:Operations + AI: Beyond Automation: Reimagining Supply Chains\, Manufacturing and Operations with AI
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:When moving from isolated AI use cases to an integrated operating model\, how do you prevent local automations from optimizing against the global business outcome?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D2-H3-1800@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T180000
+DTEND;TZID=Asia/Kolkata:20261008T193000
+SUMMARY:Agentic Data Cloud: From building the analytics data foundation with Knowledge Catalog\, federating it with transactional data to generating advanced insights using Agentic Intelligence.
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:In the hands-on architecture\, how do you enforce lineage and access controls when a data agent federates cataloged analytics data with live transactional sources?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H1-1000@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T100000
+DTEND;TZID=Asia/Kolkata:20261009T103000
+SUMMARY:How to Build Your Enterprise AI Stack
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:For an Indian fintech startup\, which layer of the enterprise AI stack is most dangerous to outsource too early: data\, models\, evaluation infrastructure\, or deployment runtime?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H1-1035@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T103500
+DTEND;TZID=Asia/Kolkata:20261009T105500
+SUMMARY:Consuming AI at Scale: Lessons from a Regulated Industry
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:What due-diligence evidence should a regulated bank require before allowing a third-party AI component into a customer-impacting workflow?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H3-1130@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T113000
+DTEND;TZID=Asia/Kolkata:20261009T115500
+SUMMARY:Secure Your Agentic Future: No More Rogue Agents
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:How should agent identity and lifecycle management differ from human/service-account IAM when agents can dynamically discover tools and act autonomously?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H3-1200@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T120000
+DTEND;TZID=Asia/Kolkata:20261009T122500
+SUMMARY:Crash. Resume. Repeat: Building Agents That Don't Die
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:How do you design idempotency and compensation when a resumed agent must avoid re-running a tool call that already succeeded but produced an external side effect?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H1-1305@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T130500
+DTEND;TZID=Asia/Kolkata:20261009T134500
+SUMMARY:The Agent Economy: Who owns the customer when the agent is the interface?
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:In the banking example\, what disclosure or control should be mandatory when an agent selects a payment instrument on behalf of a user?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H1-1345@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T134500
+DTEND;TZID=Asia/Kolkata:20261009T144500
+SUMMARY:Lunch
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H1-1530@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T153000
+DTEND;TZID=Asia/Kolkata:20261009T155000
+SUMMARY:The Trust Deficit: Building Responsible AI in a Regulated\, Risk-Heavy Business
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:Which responsible-AI control is most often missing when financial institutions move from compliance documentation to AI systems that are trustworthy by design?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-baseline-D3-H3-1610@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T161000
+DTEND;TZID=Asia/Kolkata:20261009T171000
+SUMMARY:From Idea to Production: Build Enterprise-Grade Applications with Agentic AI
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:During the workshop\, where would you add automated tests or eval harnesses so AI-assisted development produces production-grade applications rather than just faster demos?
+END:VEVENT
+END:VCALENDAR

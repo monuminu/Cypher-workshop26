@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plain agent vs agent harness at Cypher 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/web/styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="claim">
+    <h1>Same model. Same tools. <span class="b">One has a harness.</span></h1>
+    <p class="sub">Both agents plan a real attendee's 3 days at Cypher 2026 from the live agenda
+      (<span id="sessionCount">121</span> sessions, 3 halls), then build an Excel workbook and a briefing deck.</p>
+  </div>
+  <div class="controls">
+    <div class="personas" id="personas" role="radiogroup" aria-label="Attendee"></div>
+    <div class="actions">
+      <button id="startBtn" class="primary">Start the race</button>
+      <select id="replaySel" aria-label="Replay a recorded race"><option value="">Replay a recorded race…</option></select>
+      <select id="speedSel" aria-label="Replay speed">
+        <option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option><option value="8">8×</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<section class="brief" id="brief" aria-live="polite"></section>
+
+<main class="lanes">
+  <section class="lane a" id="lane-baseline" aria-label="Plain agent">
+    <div class="lane-head">
+      <h2>Plain agent</h2>
+      <p class="stack"><code>Agent(client, instructions, tools)</code></p>
+    </div>
+    <div class="metrics" data-metrics></div>
+    <ul class="pillars off" aria-label="Harness features (not available)">
+      <li data-p="planning">Plan</li><li data-p="memory">Memory</li><li data-p="compaction">Compaction</li><li data-p="skills">Skills</li><li data-p="background">Background agent</li><li data-p="verify">Verify loop</li>
+    </ul>
+    <ol class="trace" data-trace></ol>
+  </section>
+
+  <section class="lane b" id="lane-harness" aria-label="Agent harness">
+    <div class="lane-head">
+      <h2>Agent harness</h2>
+      <p class="stack"><code>create_harness_agent(client, …, tools)</code></p>
+    </div>
+    <div class="metrics" data-metrics></div>
+    <ul class="pillars" aria-label="Harness features">
+      <li data-p="planning">Plan</li><li data-p="memory">Memory</li><li data-p="compaction">Compaction</li><li data-p="skills">Skills</li><li data-p="background">Background agent</li><li data-p="verify">Verify loop</li>
+    </ul>
+    <div class="harness-side">
+      <div class="todos"><h3>Todo list <span class="count" data-todocount></span></h3><ul data-todos><li class="empty">No plan yet</li></ul></div>
+      <div class="scout"><h3>SpeakerScout <span class="count" data-scoutstate>idle</span></h3><ul data-scout><li class="empty">No research delegated yet</li></ul></div>
+      <div class="loop"><h3>Verify loop</h3><p class="loopn" data-loop>0</p><p class="loopr" data-loopr>Waiting for the first attempt</p></div>
+    </div>
+    <ol class="trace" data-trace></ol>
+  </section>
+</main>
+
+<section class="results" id="results" hidden>
+  <h2 class="tl-title">What each agent delivered</h2>
+  <table class="checks" id="checks">
+    <thead><tr><th scope="col"></th><th scope="col" class="a">Plain agent</th><th scope="col" class="b">Agent harness</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h2 class="tl-title">The plans, on the real agenda</h2>
+  <p class="legend"><span class="sw a"></span>Plain agent pick <span class="sw b"></span>Harness pick <span class="sw away"></span>Attendee busy</p>
+  <div class="timeline" id="timeline"></div>
+  <p class="source" id="source"></p>
+</section>
+
+<script src="/web/app.js"></script>
+</body>
+</html>

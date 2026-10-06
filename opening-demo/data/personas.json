@@ -1,0 +1,156 @@
+{
+ "engineer": {
+  "key": "engineer",
+  "name": "Priya",
+  "role": "GenAI engineer at a Bengaluru fintech startup",
+  "blurb": "Ships LLM agents to production. Wants hands-on depth: agents, harnesses, reliability, evals and cost.",
+  "interests": [
+   "agent",
+   "agentic",
+   "harness",
+   "production",
+   "llm",
+   "model",
+   "token",
+   "reliable",
+   "secure",
+   "safely",
+   "evaluation",
+   "orchestration",
+   "small model",
+   "cost",
+   "economics"
+  ],
+  "must_attend": [
+   "D1-H3-1930"
+  ],
+  "min_workshops": 2,
+  "min_panels_or_debates": 1,
+  "commitments": [
+   {
+    "day": 1,
+    "start": "14:00",
+    "end": "15:00",
+    "what": "Sprint review call with my team"
+   },
+   {
+    "day": 2,
+    "start": "11:00",
+    "end": "13:00",
+    "what": "Booth duty at our startup's Expo stand"
+   },
+   {
+    "day": 3,
+    "start": "18:30",
+    "end": "23:59",
+    "what": "Flight back to Mumbai, must leave the venue by 18:30"
+   }
+  ],
+  "memory": {
+   "file": "priya_past_sessions.md",
+   "description": "Sessions Priya attended at a Bengaluru AI meetup last month — topics she has already covered",
+   "note": "From a previous conversation with Priya (Sept 2026):\n\nLast month I attended a full-day AI engineering meetup in Bengaluru. I already went deep on:\n- AI-native SDLC and 'vibe coding' (two talks + a hands-on)\n- RAG: taking retrieval-augmented generation from prototype to production\n- Voice AI for Indian languages\n\nPlease don't put talks on those topics in my Cypher plan — I'd rather spend the time on agent reliability, harnesses, agent security and the economics of small vs big models."
+  }
+ },
+ "cxo": {
+  "key": "cxo",
+  "name": "Rahul",
+  "role": "CIO of a large Indian insurer",
+  "blurb": "Owns the enterprise AI roadmap. Wants strategy, governance, trust in regulated industries and ROI.",
+  "interests": [
+   "enterprise",
+   "governance",
+   "responsible",
+   "trust",
+   "insurance",
+   "financial",
+   "regulated",
+   "roi",
+   "business",
+   "workforce",
+   "leadership",
+   "operations",
+   "risk",
+   "regulat",
+   "decision",
+   "value",
+   "transformation"
+  ],
+  "must_attend": [
+   "D1-H1-1035",
+   "D3-H1-1000"
+  ],
+  "min_workshops": 0,
+  "min_panels_or_debates": 2,
+  "commitments": [
+   {
+    "day": 1,
+    "start": "16:30",
+    "end": "23:59",
+    "what": "Board dinner, must leave by 16:30"
+   },
+   {
+    "day": 2,
+    "start": "10:00",
+    "end": "12:00",
+    "what": "Analyst briefing at HQ"
+   },
+   {
+    "day": 3,
+    "start": "13:00",
+    "end": "14:00",
+    "what": "Customer lunch at the VIP lounge (counts as lunch)",
+    "counts_as_lunch": true
+   }
+  ],
+  "memory": {
+   "file": "rahul_past_sessions.md",
+   "description": "Topics Rahul covered at a recent CIO roundtable",
+   "note": "From a previous conversation with Rahul (Sept 2026):\n\nAt last month's CIO roundtable I sat through three sessions on sovereign AI and India's AI infrastructure and on GCCs. I've had enough of both for now — skip sovereign-AI and GCC sessions at Cypher. Focus on governance, trust in regulated industries and enterprise ROI."
+  }
+ },
+ "student": {
+  "key": "student",
+  "name": "Arjun",
+  "role": "Final-year CS student at IISc on a Learning Pass",
+  "blurb": "Wants to learn by building. Maximise workshops, research talks and India-built models.",
+  "interests": [
+   "build",
+   "workshop",
+   "research",
+   "frontier",
+   "model",
+   "reasoning",
+   "voice",
+   "india",
+   "agent",
+   "production",
+   "robotics"
+  ],
+  "must_attend": [
+   "D1-H3-1800",
+   "D3-H3-1930"
+  ],
+  "min_workshops": 4,
+  "min_panels_or_debates": 1,
+  "commitments": [
+   {
+    "day": 2,
+    "start": "14:00",
+    "end": "16:00",
+    "what": "Volunteer shift at registration desk"
+   },
+   {
+    "day": 3,
+    "start": "10:00",
+    "end": "11:30",
+    "what": "Online lab exam"
+   }
+  ],
+  "memory": {
+   "file": "arjun_past_sessions.md",
+   "description": "Workshops Arjun already did this semester",
+   "note": "From a previous conversation with Arjun (Sept 2026):\n\nI already did a semester project on space and satellite AI and attended a quantum computing bootcamp. Skip space-AI and quantum sessions — I want agents, reasoning models and Indian-language AI instead."
+  }
+ }
+}

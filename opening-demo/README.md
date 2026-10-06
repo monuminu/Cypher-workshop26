@@ -1,115 +1,87 @@
-# Opening demo · one task, two runtimes
+# Plain agent vs agent harness, live at Cypher 2026
 
-A local HTML / FastAPI app for **Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents**.
-Enter any task, attach input files, and run both agents concurrently. Download their actual outputs,
-inspect generated code and tool results, and send the same follow-up to both conversations.
-This is a presenter-led preview, shown from the instructor's laptop before Module 1.
-Participants watch the demo, then begin `docs/modules/01-first-agent.ipynb`;
-there is no M00 notebook to complete. The eight labs teach the capabilities seen here.
-The notebooks and their agenda-specific implementation are independent of this app.
+A side-by-side race for the **Agent Harness for Enterprise** workshop (Cypher 2026, KTPO Bengaluru).
+Two agents get the same model, instructions and per-run budget, and are asked to plan a real
+attendee's 3 days from the **live Cypher 2026 agenda** (121 sessions, 3 halls), then build an
+Excel workbook and a PowerPoint briefing deck with a researched speaker spotlight:
+
+| | Plain agent | Agent harness |
+|---|---|---|
+| Built with | `Agent(client, instructions, tools)` | `create_harness_agent(client, ..., tools)` (Microsoft Agent Framework) |
+| Planning | none | `TodoProvider`: live todo list |
+| Memory | none across conversations | `FileMemoryProvider` scoped to the attendee, pre-seeded with what they said last time ("I already covered X, skip it") |
+| Context | grows until the end | `ContextWindowCompactionStrategy`: evicts old tool output |
+| Skills | writes openpyxl / python-pptx code itself with `run_python` | `SkillsProvider` discovers `skills/xlsx` and `skills/pptx`, loads the instructions, runs the bundled scripts |
+| Speaker research | calls `lookup_speaker` inline | delegates to the **SpeakerScout** background agent (`BackgroundAgentsProvider`) and keeps planning |
+| Finishing | stops when the model stops | `AgentLoopMiddleware` re-runs it until the plan is submitted, both files exist, research is in and todos are closed |
+
+Both sides share the same task tools (`get_attendee_profile`, `list_sessions`, `search_sessions`,
+`get_session`, `run_python`, `submit_itinerary`, plus `lookup_speaker`, which on the harness side
+lives on SpeakerScout). The end screen compares what each agent delivered: time, files, research,
+memory use and cost. There is no automated score.
+
+`skills/` contains original skills written for this demo in the open Agent Skills format. Anthropic's
+`xlsx`/`pptx` skills are under a proprietary licence that doesn't allow copying them into other
+projects, so they are not included.
+
+## Setup
+
+The demo uses the **workshop repo's root `.env`** and the same provider switcher as the notebooks
+(`workshop_utils.get_chat_client()`), so `MODEL_PROVIDER` picks the model for both agents. Use a
+strong tool-calling model (the recorded race used gpt-5.5).
+
+```bash
+cd opening-demo
+python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest  # tools + skill scripts
+```
+
+An `opening-demo/.env`, if present, takes precedence over the root one.
 
 ## Run
 
-From the workshop root, using the existing workshop Python environment:
+```bash
+.venv/bin/uvicorn server:app --port 8000      # open http://localhost:8000
+```
+- **Start the race** runs both agents live and side by side. Every live race is saved to `recordings/`.
+- **Replay a recorded race** plays a saved race back at 1–8× speed with no network or model needed.
+  Record a few good runs the night before; this is your venue-wifi safety net.
 
-```powershell
-python -m pip install -r opening-demo/requirements.txt
-python opening-demo/app.py
+Terminal only:
+```bash
+.venv/bin/python -m demo.race --persona engineer            # both sides + summary
+.venv/bin/python -m demo.race --persona cxo --side harness
+.venv/bin/python -m demo.race --persona student --record     # save for replay
 ```
 
-Open **http://127.0.0.1:8010**. Change the port with `OPENING_DEMO_PORT` if needed.
-The app binds only to loopback. Keep the workshop's pinned Agent Framework versions:
-core 1.13.0, OpenAI 1.10.0, Foundry 1.10.4. No new shell package is required.
-It reads the repository `.env` when constructing a new comparison. No model calls happen
-at startup; clicking **Run both agents** or **Send to both** invokes your configured provider.
-The model dropdown offers the configured default and, for the OpenAI provider, `gpt-4o`.
-The selection applies to both agents in a new comparison without changing `.env`.
-Follow-ups and restored runs retain their original selected model. Azure/Foundry model
-names are deployment-specific, so those providers keep the configured deployment.
-
-There is **no app-imposed time limit**, including Python execution. **Stop both** cancels
-the local runs and terminates their running Python process trees. Provider/network-level
-timeouts still apply; cancellation cannot recall a request already submitted to a provider.
-The visible model-call cap defaults to 32 per side per turn, includes helper calls, and is
-editable. The harness has a six-iteration continuation cap.
-
-## What differs
-
-| Capability | Basic | Harness |
-|---|---|---|
-| Same user prompt, uploaded bytes, configured model | Yes | Yes |
-| Generic `python_execute`, installed Python libraries | Yes | Yes |
-| Normal tool loop and conversation history | Yes | Yes |
-| Skill discovery/loading | No | Installed `skills/` directory |
-| Task tracking, plan/execute, compaction, file memory/access | No | M4 framework providers |
-| Background work | No | M4 provider + generic Helper agent |
-| Continuation | Normal tool loop | Also continues unfinished todos |
-| Native web search | No | Optional; depends on provider support |
-| Step-by-step tool approval | No | Optional app-hosted pause/allow/decline |
-
-Both interpreter tools run arbitrary Python. There is no agenda parser, spreadsheet schema,
-exporter, PowerPoint builder, or task-specific validator in the tools or runtime instructions.
-The example prompts are editable UI conveniences. For the agenda example, attach an existing
-`schedule.json` using the file picker; the app does not fetch or substitute a schedule.
-Outputs go in each workspace's `outputs/`; uploaded files go in `inputs/`.
-Every generated script and its stdout/stderr is saved separately in the run's `logs/` folder.
-
-This follows the local execution/environment context idea from Microsoft's
-[shell sample](https://github.com/microsoft/agent-framework/blob/main/python/samples/02-agents/tools/local_shell_with_environment_provider.py),
-using a Python interpreter so it works with the existing pinned packages. The environment
-description reports installed libraries rather than pretending every skill dependency exists.
-`openpyxl`, `python-pptx`, and `pypdf` support common file tasks. Skills may suggest other tools;
-missing LibreOffice, Node packages, or rendering dependencies must be reported honestly.
-Creating a deck does not guarantee it was visually rendered and inspected.
-
-Skills are discovered from `../skills/`. The presenter has locally installed Excel and
-PowerPoint skills; their upstream licenses prohibit redistribution, so their contents are
-not included in this repository. `skills/xlsx-source.json` and `skills/pptx-source.json`
-record their upstream sources and revisions. A fresh clone will not have those two skills.
-Supply skills you have permission to use before rehearsing a skill comparison. The app
-shows the installed skills; its artifact/skill integration tests expect the presenter
-installation. These are upstream guidance and helpers, not task-specific templates. Add another `skills/<name>/SKILL.md` to expose it on
-the next comparison. Loading a skill does not automatically execute a script.
-
-## Observe and continue
-
-The UI streams real model text and tool-call arguments over server-sent events, with user/assistant
-chat bubbles and expandable tool execution/results. It shows actual todos, skill loads and downloads,
-without elapsed-time counters. Reconnecting replays missed events without duplicating messages.
-Each individual model call uses provider streaming; the original finalized response is returned to
-the outer non-streaming orchestration. This preserves the pinned framework's per-call history marker
-and avoids its outer streaming tool-history replay issue without changing package versions.
-**Finished** means the agent turn ended; it is not an independent artifact-quality verdict.
-Compare outputs and evidence, including successes by the basic agent. This experiment changes
-both runtime capabilities and skill access, so it does not isolate their causal effects.
-
-Plan mode affects only the harness. It can propose a plan while the basic agent executes;
-switch the mode to Execute and send a follow-up to proceed. Approval pauses are implemented
-in host function middleware to avoid provider-specific approval replay issues described in M4.
-Framework tool-approval middleware remains installed, with local provider tool approvals
-disabled in favor of the optional host pause. These are observable host controls, not a sandbox.
-
-History checkpoints, preferences, outputs and event logs persist in
-`.harness/opening-demo/<run-id>/` (ignored by Git). Previous runs can be reopened in the UI.
-After a server restart, completed-turn checkpoints can be restored for a follow-up. In-flight
-background jobs cannot survive a server restart. A new comparison reloads model settings;
-follow-ups in a running server retain that comparison's existing clients.
-
-Python runs with the presenter's account permissions and network access. Separate directories
-and omission of provider keys from child-process environment variables are **not security isolation**:
-code can still read host files. Run locally with trusted participants/inputs or use an externally
-isolated disposable environment. Do not publish this unauthenticated execution service.
-
-## Tracing and offline checks
-
-`events.jsonl` is an application event log, not an OpenTelemetry export. To also export framework
-spans, set `OPENING_DEMO_OTEL=true` before startup; the existing workshop `TRACE_BACKEND`
-configuration selects the destination. Sensitive prompt tracing is disabled by default.
-
-```powershell
-python -m unittest discover -s opening-demo/tests -v
+Refresh the agenda snapshot (it reads the same public schedule data as the website):
+```bash
+.venv/bin/python data/fetch_schedule.py
 ```
 
-Tests use scripted responses with the real framework. They verify concurrent execution, generic
-Excel and PowerPoint file creation/readback, skill access, downloads, approvals, cancellation,
-call limits and persisted follow-ups. They make no paid model calls and are not quality benchmarks.
+## Personas (`data/personas.json`)
+- **Priya, GenAI engineer.** Must attend *Agent Harness for Enterprise* (D1, Hall 3, 19:30). Busy during booth duty on Day 2 and has a flight on Day 3. Memory: already covered vibe coding/SDLC, RAG and voice AI at a meetup.
+- **Rahul, insurer CIO.** Must attend Vijay Shekhar Sharma's and Pratyush Kumar's keynotes. Has a board dinner and an analyst briefing. Memory: done with sovereign-AI and GCC talks.
+- **Arjun, student.** Needs at least 4 workshops. Has a volunteer shift and a lab exam. Memory: skip space AI and quantum.
+
+## Workshop script: what to point at
+
+1. **Before starting.** "Same model, same task tools, same prompt, same per-run budget. The only difference is the harness." Show the two constructor lines in the lane headers.
+2. **Memory.** The harness lane opens with what Priya said in a previous conversation. The plain lane says it has no memory. Watch whether the plain agent books the vibe-coding and RAG talks she already saw.
+3. **Planning.** The *Plan* badge lights and a todo list appears (`TodoProvider`).
+4. **Background agent.** SpeakerScout starts researching speakers while the main agent keeps planning. Its calls show up indented and labelled.
+5. **Skills.** The harness loads the `xlsx` and `pptx` skills and runs their scripts. The plain agent writes openpyxl and python-pptx code from scratch.
+6. **Compaction.** The *context now* gauge drops when old tool output is evicted.
+7. **Completion loop.** If the harness stops early (files missing, research still running, todos open), the loop sends it back with exactly what's left.
+8. **The reveal.** The side-by-side table shows what each delivered, with downloadable files, and the timeline shows both plans on the real agenda.
+9. **The honest caveat.** The harness spends more tokens. That's the trade: reliable, complete work on long tasks.
+
+## Layout
+```
+data/      fetch_schedule.py, cypher2026.json (snapshot), personas.json
+demo/      agents.py (the two contestants, memory seeding, SpeakerScout, skill runner), tools.py (shared tools),
+           middleware.py (UI events only, no behaviour change), events.py, prompts.py, race.py (CLI)
+skills/    xlsx/ and pptx/ (SKILL.md + scripts), discovered by the harness
+server.py  FastAPI: /api/race, /api/stream/{id} (SSE), /api/replay/{name}, /api/recordings
+web/       index.html, styles.css, app.js
+```

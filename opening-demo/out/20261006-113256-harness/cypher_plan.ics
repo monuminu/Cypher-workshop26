@@ -1,0 +1,164 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Cypher Concierge Demo//EN
+BEGIN:VEVENT
+UID:20261006-113256-harness-D1-H3-1100@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T110000
+DTEND;TZID=Asia/Kolkata:20261007T112500
+SUMMARY:Your Agent Stack Is Broken at the Bottom
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:When agent workloads shift from human-speed queries to machine-speed concurrency\, which data-layer SLOs do you recommend teams monitor first to catch reliability regressions before users do?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D1-H3-1130@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T113000
+DTEND;TZID=Asia/Kolkata:20261007T115500
+SUMMARY:How to Govern AI even If It's Hard to Predict
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:In Kimchi’s five-role multi-model routing architecture\, how do you test that routing policies continue to enforce governance goals when model capabilities or prices change underneath the system?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D1-H2-1200@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T120000
+DTEND;TZID=Asia/Kolkata:20261007T122500
+SUMMARY:Running AI Agents Safely on Production Systems
+LOCATION:Hall 2, KTPO Bengaluru
+DESCRIPTION:What is the most useful boundary between autonomy and control that you have found for agents acting on live systems: permission scopes\, sandboxing\, human approval gates\, or post-action rollback?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D1-H3-1230@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T123000
+DTEND;TZID=Asia/Kolkata:20261007T133000
+SUMMARY:Lunch
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D1-H2-1600@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T160000
+DTEND;TZID=Asia/Kolkata:20261007T162000
+SUMMARY:Explainability is an infrastructure problem\, not a model problem
+LOCATION:Hall 2, KTPO Bengaluru
+DESCRIPTION:For regulated credit or fraud decisions\, what minimum evidence should be captured at inference time so that a single decision remains explainable six weeks later after features and models have changed?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D1-H1-1645@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T164500
+DTEND;TZID=Asia/Kolkata:20261007T170500
+SUMMARY:Stop counting tokens. Start measuring outcomes.
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:In the insurance-renewal example\, which hidden cost component most often changes the architecture choice once you measure cost per successful outcome rather than cost per token?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D1-H3-1930@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261007T193000
+DTEND;TZID=Asia/Kolkata:20261007T210000
+SUMMARY:Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:When designing an Agent Harness\, which verification loop gives the best reliability lift per unit of latency: tool-result validation\, plan review\, execution checkpoints\, or post-task audit?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D2-H1-1000@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T100000
+DTEND;TZID=Asia/Kolkata:20261008T103000
+SUMMARY:The Agentic Platform: Powering Operations for Real Business Outcomes
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:What platform capability should teams standardize first when moving from isolated agent pilots to responsible\, reusable agentic operations: context management\, governance\, integrations\, or observability?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D2-H2-1305@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T130500
+DTEND;TZID=Asia/Kolkata:20261008T140500
+SUMMARY:Lunch
+LOCATION:Hall 2, KTPO Bengaluru
+DESCRIPTION:
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D2-H2-1430@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T143000
+DTEND;TZID=Asia/Kolkata:20261008T145500
+SUMMARY:Beyond Agents: Building Systems of Enterprise Intelligence
+LOCATION:Hall 2, KTPO Bengaluru
+DESCRIPTION:How do you quantify the Coordination Tax of fragmented agents in a way engineering and business teams can both act on?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D2-H1-1525@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T152500
+DTEND;TZID=Asia/Kolkata:20261008T160500
+SUMMARY:This House Believes AI Will Give India Its Biggest Economic Opportunity in a Generation
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:For India’s AI opportunity to become broad-based rather than skill-biased\, what technical or policy lever would most directly reduce the gap between AI producers and AI users?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D2-H1-1610@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T161000
+DTEND;TZID=Asia/Kolkata:20261008T163000
+SUMMARY:Operations + AI: Beyond Automation: Reimagining Supply Chains\, Manufacturing and Operations with AI
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:When moving from isolated AI use cases to an integrated operating model\, which bottleneck usually blocks scale first: data foundations\, process redesign\, team adoption\, or outcome measurement?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D2-H3-1800@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261008T180000
+DTEND;TZID=Asia/Kolkata:20261008T193000
+SUMMARY:Agentic Data Cloud: From building the analytics data foundation with Knowledge Catalog\, federating it with transactional data to generating advanced insights using Agentic Intelligence.
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:In a federated data-agent setup\, how do you prevent the agent from producing confident insights when catalog metadata is incomplete\, stale\, or inconsistent across transactional systems?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D3-H3-1030@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T103000
+DTEND;TZID=Asia/Kolkata:20261009T105500
+SUMMARY:Token Tax Saver Schemes: 7 Design Choice Hacks
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:Of the seven design hacks\, which one typically reduces token spend without increasing operational complexity or harming task-success rate?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D3-H1-1125@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T112500
+DTEND;TZID=Asia/Kolkata:20261009T114500
+SUMMARY:The Best Model Is Not the Biggest Model: Engineering the Economics of Enterprise AI
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:What evaluation threshold should trigger routing from a small model to a larger model: confidence\, task class\, expected business risk\, or measured failure cost?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D3-H3-1200@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T120000
+DTEND;TZID=Asia/Kolkata:20261009T122500
+SUMMARY:Crash. Resume. Repeat: Building Agents That Don't Die
+LOCATION:Hall 3, KTPO Bengaluru
+DESCRIPTION:How do you design idempotency and checkpoint granularity so a resumed agent neither repeats side effects nor skips necessary recovery work?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D3-H1-1305@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T130500
+DTEND;TZID=Asia/Kolkata:20261009T134500
+SUMMARY:The Agent Economy: Who owns the customer when the agent is the interface?
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:If an agent chooses a credit card or financial product for a customer\, what should determine accountability: the user mandate\, the agent platform\, the issuing institution\, or the merchant network?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D3-H1-1345@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T134500
+DTEND;TZID=Asia/Kolkata:20261009T144500
+SUMMARY:Lunch
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D3-H1-1530@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T153000
+DTEND;TZID=Asia/Kolkata:20261009T155000
+SUMMARY:The Trust Deficit: Building Responsible AI in a Regulated\, Risk-Heavy Business
+LOCATION:Hall 1, KTPO Bengaluru
+DESCRIPTION:What is one responsible-AI control that looks optional in early pilots but becomes non-negotiable once AI affects credit\, fraud\, compliance\, or customer outcomes at scale?
+END:VEVENT
+BEGIN:VEVENT
+UID:20261006-113256-harness-D3-H2-1605@cypher-demo
+DTSTART;TZID=Asia/Kolkata:20261009T160500
+DTEND;TZID=Asia/Kolkata:20261009T162500
+SUMMARY:The Scaling Loop: The Secret Relationship Between Small and Big Models
+LOCATION:Hall 2, KTPO Bengaluru
+DESCRIPTION:What did BharatGen learn at smaller scales that changed decisions for larger-scale models\, and how can application teams use that lesson when choosing between SLMs and frontier models?
+END:VEVENT
+END:VCALENDAR

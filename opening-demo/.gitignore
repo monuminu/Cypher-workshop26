@@ -1,0 +1,9 @@
+.venv/
+.env
+__pycache__/
+.pytest_cache/
+agent-file-memory/
+# Run outputs: keep only the recorded race used for replay
+out/*
+!out/20261006-113256-baseline/
+!out/20261006-113256-harness/

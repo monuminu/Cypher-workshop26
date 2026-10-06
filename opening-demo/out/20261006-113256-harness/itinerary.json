@@ -1,0 +1,363 @@
+{
+ "days": [
+  {
+   "day": 1,
+   "items": [
+    {
+     "session_id": "D1-H3-1100",
+     "title": "Your Agent Stack Is Broken at the Bottom",
+     "reason": "Directly relevant to Priya’s production-agent work: it focuses on the real-time data layer, concurrency, scale, and cost bottlenecks that can make autonomous agents fail in practice.",
+     "question": "When agent workloads shift from human-speed queries to machine-speed concurrency, which data-layer SLOs do you recommend teams monitor first to catch reliability regressions before users do?",
+     "start": "11:00",
+     "end": "11:25",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Rakesh Puttaswamy",
+       "company": "ClickHouse"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1130",
+     "title": "How to Govern AI even If It's Hard to Predict",
+     "reason": "Matches Priya’s interest in safe, governed production LLM systems by showing how model routing and orchestration can enforce cost, data-location, and vendor-risk policies without freezing delivery.",
+     "question": "In Kimchi’s five-role multi-model routing architecture, how do you test that routing policies continue to enforce governance goals when model capabilities or prices change underneath the system?",
+     "start": "11:30",
+     "end": "11:55",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Kunal Das",
+       "company": "Cast AI"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H2-1200",
+     "title": "Running AI Agents Safely on Production Systems",
+     "reason": "A high-signal fit for agent security and production autonomy: it covers how D. E. Shaw lets agents write code, execute it, and act on live systems inside controlled safety boundaries.",
+     "question": "What is the most useful boundary between autonomy and control that you have found for agents acting on live systems: permission scopes, sandboxing, human approval gates, or post-action rollback?",
+     "start": "12:00",
+     "end": "12:25",
+     "hall": 2,
+     "category": "Other",
+     "speakers": [
+      {
+       "name": "Sombuddha Choudhury",
+       "company": "D. E. Shaw India"
+      },
+      {
+       "name": "Sairam Reddy Kanikireddy",
+       "company": "D. E. Shaw India"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1230",
+     "title": "Lunch",
+     "start": "12:30",
+     "end": "13:30",
+     "hall": 3,
+     "category": "Break / Lunch",
+     "speakers": []
+    },
+    {
+     "session_id": "D1-H2-1600",
+     "title": "Explainability is an infrastructure problem, not a model problem",
+     "reason": "Especially relevant to fintech: it reframes explainability as decision-time data retention and architecture, not just SHAP/LIME/model-card artifacts after the fact.",
+     "question": "For regulated credit or fraud decisions, what minimum evidence should be captured at inference time so that a single decision remains explainable six weeks later after features and models have changed?",
+     "start": "16:00",
+     "end": "16:20",
+     "hall": 2,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Tushar Haldar",
+       "company": "ARA AI Labs"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H1-1645",
+     "title": "Stop counting tokens. Start measuring outcomes.",
+     "reason": "Hits Priya’s cost-and-economics priority by moving beyond token price to cost per successful business outcome, including caching, idle capacity, data movement, tooling, and ops overhead.",
+     "question": "In the insurance-renewal example, which hidden cost component most often changes the architecture choice once you measure cost per successful outcome rather than cost per token?",
+     "start": "16:45",
+     "end": "17:05",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Ritesh Dhoot",
+       "company": "Neysa"
+      }
+     ]
+    },
+    {
+     "session_id": "D1-H3-1930",
+     "title": "Agent Harness for Enterprise: Engineering the Runtime for Reliable AI Agents",
+     "reason": "This must-attend workshop is the centerpiece for Priya: it covers runtime patterns for skill discovery, context compaction, tool execution, verification loops, identity propagation, observability, governance, and reliable enterprise-scale agents.",
+     "question": "When designing an Agent Harness, which verification loop gives the best reliability lift per unit of latency: tool-result validation, plan review, execution checkpoints, or post-task audit?",
+     "start": "19:30",
+     "end": "21:00",
+     "hall": 3,
+     "category": "Workshop",
+     "speakers": [
+      {
+       "name": "Manoranjan Rajguru",
+       "company": "Microsoft"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 2,
+   "items": [
+    {
+     "session_id": "D2-H1-1000",
+     "title": "The Agentic Platform: Powering Operations for Real Business Outcomes",
+     "reason": "Gives Priya an enterprise-platform view of orchestration, context, integration, governance, and measurable outcomes—the connective tissue needed to ship agents beyond pilots.",
+     "question": "What platform capability should teams standardize first when moving from isolated agent pilots to responsible, reusable agentic operations: context management, governance, integrations, or observability?",
+     "start": "10:00",
+     "end": "10:30",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Rakesh Shinde",
+       "company": "Genpact"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H2-1305",
+     "title": "Lunch",
+     "start": "13:05",
+     "end": "14:05",
+     "hall": 2,
+     "category": "Break / Lunch",
+     "speakers": []
+    },
+    {
+     "session_id": "D2-H2-1430",
+     "title": "Beyond Agents: Building Systems of Enterprise Intelligence",
+     "reason": "Strong fit for agentic orchestration at scale: it addresses coordination across agents, workflows, data, people, economics, and the ‘Intelligence Yield’ of AI consumption.",
+     "question": "How do you quantify the Coordination Tax of fragmented agents in a way engineering and business teams can both act on?",
+     "start": "14:30",
+     "end": "14:55",
+     "hall": 2,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Yeshwant Nayak",
+       "company": "Relanto"
+      },
+      {
+       "name": "TP Vincent",
+       "company": "Relanto"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H1-1525",
+     "title": "This House Believes AI Will Give India Its Biggest Economic Opportunity in a Generation",
+     "reason": "Satisfies the panel/debate requirement while giving Priya a broader lens on AI economics, productivity, jobs, and India’s competitive advantage—useful context for fintech product strategy.",
+     "question": "For India’s AI opportunity to become broad-based rather than skill-biased, what technical or policy lever would most directly reduce the gap between AI producers and AI users?",
+     "start": "15:25",
+     "end": "16:05",
+     "hall": 1,
+     "category": "Debate",
+     "speakers": [
+      {
+       "name": "Rajesh Ramanathan",
+       "company": "Mastercard"
+      },
+      {
+       "name": "Hari Varrier",
+       "company": "Havells"
+      },
+      {
+       "name": "Abhishek Ojha",
+       "company": "Ujjivan Small Finance Bank"
+      },
+      {
+       "name": "Vikas Mathur",
+       "company": "Trainocate India"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H1-1610",
+     "title": "Operations + AI: Beyond Automation: Reimagining Supply Chains, Manufacturing and Operations with AI",
+     "reason": "Useful for translating agentic systems into operational outcomes: it focuses on integrated AI operating models that sense, predict, decide, adapt, and scale beyond pilots.",
+     "question": "When moving from isolated AI use cases to an integrated operating model, which bottleneck usually blocks scale first: data foundations, process redesign, team adoption, or outcome measurement?",
+     "start": "16:10",
+     "end": "16:30",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Shashi Mohan Singh",
+       "company": "Reliance Consumers"
+      }
+     ]
+    },
+    {
+     "session_id": "D2-H3-1800",
+     "title": "Agentic Data Cloud: From building the analytics data foundation with Knowledge Catalog, federating it with transactional data to generating advanced insights using Agentic Intelligence.",
+     "reason": "Adds a second hands-on workshop and reinforces Priya’s production concerns around data foundations, catalogs, federation, and data agents for advanced insights.",
+     "question": "In a federated data-agent setup, how do you prevent the agent from producing confident insights when catalog metadata is incomplete, stale, or inconsistent across transactional systems?",
+     "start": "18:00",
+     "end": "19:30",
+     "hall": 3,
+     "category": "Workshop",
+     "speakers": [
+      {
+       "name": "Abirami Sukumaran",
+       "company": "Google Cloud"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "day": 3,
+   "items": [
+    {
+     "session_id": "D3-H3-1030",
+     "title": "Token Tax Saver Schemes: 7 Design Choice Hacks",
+     "reason": "Direct match for Priya’s cost focus: it treats token efficiency as an upfront design problem and promises production-tested levers across architecture, model selection, human-agent co-delivery, and controls.",
+     "question": "Of the seven design hacks, which one typically reduces token spend without increasing operational complexity or harming task-success rate?",
+     "start": "10:30",
+     "end": "10:55",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Moumita Sarker",
+       "company": "Illuminati Consulting"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H1-1125",
+     "title": "The Best Model Is Not the Biggest Model: Engineering the Economics of Enterprise AI",
+     "reason": "Excellent fit for Priya’s small-vs-big-model economics interest: it covers routing, SLMs, prompt optimization, agentic architectures, and reserving larger models only where needed.",
+     "question": "What evaluation threshold should trigger routing from a small model to a larger model: confidence, task class, expected business risk, or measured failure cost?",
+     "start": "11:25",
+     "end": "11:45",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Sindhu Bhaskaran",
+       "company": "Genpact"
+      },
+      {
+       "name": "Prakash Selvakumar",
+       "company": "Genpact"
+      },
+      {
+       "name": "Prateek Giria",
+       "company": "Genpact"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H3-1200",
+     "title": "Crash. Resume. Repeat: Building Agents That Don't Die",
+     "reason": "Directly targets agent reliability in production by demonstrating durable execution, retries, state preservation, and recovery when an agent dies mid-task.",
+     "question": "How do you design idempotency and checkpoint granularity so a resumed agent neither repeats side effects nor skips necessary recovery work?",
+     "start": "12:00",
+     "end": "12:25",
+     "hall": 3,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Shubham Londhe",
+       "company": "Temporal Technologies"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H1-1305",
+     "title": "The Agent Economy: Who owns the customer when the agent is the interface?",
+     "reason": "Highly relevant to fintech strategy: it probes ownership, transactions, agent intermediaries, and the banking equivalent of an agent choosing products or payment rails for users.",
+     "question": "If an agent chooses a credit card or financial product for a customer, what should determine accountability: the user mandate, the agent platform, the issuing institution, or the merchant network?",
+     "start": "13:05",
+     "end": "13:45",
+     "hall": 1,
+     "category": "Panel Discussion",
+     "speakers": [
+      {
+       "name": "Sateesh Gottumukkala",
+       "company": "EPAM Systems"
+      },
+      {
+       "name": "Ketan Lodaya",
+       "company": "Gulf Oil India"
+      },
+      {
+       "name": "Manish Mittal",
+       "company": "Axtria"
+      },
+      {
+       "name": "Faye D'Souza",
+       "company": ""
+      },
+      {
+       "name": "Vikram Singh",
+       "company": "EXL"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H1-1345",
+     "title": "Lunch",
+     "start": "13:45",
+     "end": "14:45",
+     "hall": 1,
+     "category": "Break / Lunch",
+     "speakers": []
+    },
+    {
+     "session_id": "D3-H1-1530",
+     "title": "The Trust Deficit: Building Responsible AI in a Regulated, Risk-Heavy Business",
+     "reason": "A strong fintech-specific pick on responsible AI, governance, explainability, bias mitigation, model oversight, and human accountability in regulated financial services.",
+     "question": "What is one responsible-AI control that looks optional in early pilots but becomes non-negotiable once AI affects credit, fraud, compliance, or customer outcomes at scale?",
+     "start": "15:30",
+     "end": "15:50",
+     "hall": 1,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Ramesh Aithal",
+       "company": "L&T Finance"
+      }
+     ]
+    },
+    {
+     "session_id": "D3-H2-1605",
+     "title": "The Scaling Loop: The Secret Relationship Between Small and Big Models",
+     "reason": "Complements the enterprise-AI economics sessions by exploring frugally scalable AI and what building foundation models at multiple scales teaches about when constraint can improve model design.",
+     "question": "What did BharatGen learn at smaller scales that changed decisions for larger-scale models, and how can application teams use that lesson when choosing between SLMs and frontier models?",
+     "start": "16:05",
+     "end": "16:25",
+     "hall": 2,
+     "category": "Keynote / Talk",
+     "speakers": [
+      {
+       "name": "Ganesh Ramakrishnan",
+       "company": "BharatGen | IIT Bombay"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "summary": "Priya’s Cypher 2026 plan is optimized for production GenAI engineering: agent runtime reliability, safe production autonomy, governance, explainability for regulated contexts, token and model economics, and agentic systems at enterprise scale. It avoids her prior SDLC/vibe-coding, RAG, and voice-AI topics, respects all commitments and hall-transition buffers, includes lunch each day, includes two workshops, and balances 6, 5, and 6 non-lunch sessions across the three days."
+}

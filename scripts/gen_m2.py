@@ -6,7 +6,10 @@ PREAMBLE = """\
 # Make workshop_utils importable and pick the model (same in every lab).
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path.cwd().parents[1]))
-from workshop_utils import get_chat_client
+from workshop_utils import get_chat_client, setup_tracing
+
+# Optional: a tracing setup failure never blocks the exercises.
+trace_backend = setup_tracing()
 from agent_framework import Agent, tool
 from typing import Annotated
 from pydantic import Field"""
@@ -30,7 +33,12 @@ API, do math, hit a database. When you attach tools, the agent loop comes alive:
 2. The framework runs your Python function and feeds the **result** back.
 3. The model continues — possibly calling more tools — until it has a final answer."""
     ),
-    md("## 1. Setup"),
+    md("""## 1. Setup
+
+Tracing uses the same `.env` settings as [M1](01-first-agent.ipynb). Run this
+setup even in a fresh kernel; if tracing is unavailable, continue with the lab.
+Inspect a tool-using run: find the model call, tool span, and follow-up model call.
+Use your configured trace viewer or console output; allow a few seconds for export."""),
     code(PREAMBLE),
     md(
         """\

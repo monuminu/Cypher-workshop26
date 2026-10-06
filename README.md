@@ -26,13 +26,13 @@ tools, memory, planning, multi-agent orchestration, evaluation, and observabilit
 
 | Module | Concept |
 |:--|:--|
-| **M1 · Your First Agent** | the agent loop, streaming |
+| **M1 · Your First Agent** | the agent loop, streaming, optional tracing |
 | **M2 · Tools & Function Calling** | `@tool`, the tool loop, MCP servers, approvals |
 | **M3 · Context Engineering** | sessions, memory, skills, compaction |
 | **M4 · The Agent Harness** ★ | `create_harness_agent` — batteries included |
 | **M5 · Multi-Agent Orchestration** | agents-as-nodes workflows, executors + edges |
 | **M6 · Evaluating & Optimizing** | golden datasets, ground truth, custom checks, CI gates |
-| **M7 · Operationalizing** | middleware, OpenTelemetry tracing |
+| **M7 · Operationalizing** | middleware, custom spans (tracing starts in M1) |
 | **M8 · Capstone & Hosting** | combine everything; A2A, Functions, containers |
 
 The labs live in [`docs/modules/`](docs/modules/) as Jupyter notebooks and double

@@ -32,7 +32,7 @@ Usage (in the notebook)::
 
 Running a backend locally:
 
-* **Phoenix** — ``uvx phoenix serve`` (or ``docker run -p 6006:6006 -p 4317:4317
+* **Phoenix** — ``uvx arize-phoenix serve`` (or ``docker run -p 6006:6006 -p 4317:4317
   arizephoenix/phoenix:latest``), then open http://localhost:6006.
   Installing Phoenix with ``uvx``/Docker keeps its dependencies out of the
   workshop virtualenv, which pins its own OpenTelemetry versions.
@@ -57,6 +57,22 @@ SUPPORTED_TRACE_BACKENDS = ("console", "phoenix", "langfuse", "otlp", "none")
 PHOENIX_DEFAULT_ENDPOINT = "http://localhost:6006"
 LANGFUSE_DEFAULT_HOST = "https://cloud.langfuse.com"
 
+# OpenTelemetry providers are process-wide. Notebook cells can be rerun, but
+# registering the providers a second time is not supported by OpenTelemetry.
+_configured_backend: str | None = None
+_configured_sensitive_data: bool | None = None
+
+
+def _disable_tracing() -> None:
+    """Also prevent framework auto-setup from retrying broken telemetry config."""
+    try:
+        from agent_framework.observability import disable_instrumentation
+
+        disable_instrumentation()
+    except Exception:
+        # Tracing dependencies themselves may be missing or broken.
+        pass
+
 
 def current_trace_backend() -> str:
     """Return the configured trace backend id, defaulting to ``console``."""
@@ -72,11 +88,20 @@ def _otlp_http_exporter(endpoint: str, headers: dict[str, str] | None = None):
             "OTLP/HTTP exporter missing. Install with: "
             "uv pip install opentelemetry-exporter-otlp-proto-http"
         ) from exc
-    return OTLPSpanExporter(endpoint=endpoint, headers=headers or {})
+    # Network exports run in a BatchSpanProcessor, never in the agent's path.
+    return OTLPSpanExporter(endpoint=endpoint, headers=headers or {}, timeout=2)
 
 
 def setup_tracing(backend: str | None = None, *, enable_sensitive_data: bool = True) -> str:
-    """Configure OpenTelemetry for the chosen backend and return its id.
+    """Try to enable tracing; return the active backend, or ``none`` on failure.
+
+    Tracing is optional in every lab. Missing packages, invalid configuration,
+    and setup failures print guidance rather than interrupting the notebook.
+    Repeating this call reuses the existing providers. Restart the kernel after
+    changing a backend, credentials, endpoint, or sensitive-data setting.
+
+    A configured exporter does not guarantee delivery: remote services can be
+    unavailable. Export happens in the background, so agents can still run.
 
     Args:
         backend: One of :data:`SUPPORTED_TRACE_BACKENDS`. Defaults to the
@@ -86,18 +111,50 @@ def setup_tracing(backend: str | None = None, *, enable_sensitive_data: bool = T
             exercise — turn it **off** for anything with real user data.
 
     Returns:
-        The backend id that was configured.
-
-    Raises:
-        ValueError: for an unknown backend, or a backend missing its config.
+        The active backend id, or ``none`` when disabled/unavailable.
     """
-    backend = (backend or current_trace_backend()).strip().lower()
-    from agent_framework.observability import configure_otel_providers
-
-    # --- off ------------------------------------------------------------------
+    global _configured_backend, _configured_sensitive_data
+    backend = (backend if backend is not None else current_trace_backend()).strip().lower()
     if backend == "none":
-        print("Tracing disabled (TRACE_BACKEND=none).")
-        return backend
+        _disable_tracing()
+        print("Tracing disabled (TRACE_BACKEND=none). Continue with the lab.")
+        return "none"
+
+    try:
+        if _configured_backend is not None:
+            if (backend, enable_sensitive_data) != (_configured_backend, _configured_sensitive_data):
+                print("Tracing settings changed: restart the kernel to apply them.")
+            from agent_framework.observability import enable_instrumentation
+
+            enable_instrumentation(enable_sensitive_data=_configured_sensitive_data, force=True)
+            print(f"Tracing → {_configured_backend} (already configured in this kernel).")
+            return _configured_backend
+
+        result = _configure_tracing(backend, enable_sensitive_data=enable_sensitive_data)
+        _configured_backend = result
+        _configured_sensitive_data = enable_sensitive_data
+        return result
+    except Exception as exc:
+        _disable_tracing()
+        # Do not echo exporter exceptions: they can contain endpoints/auth data.
+        print(
+            f"Tracing unavailable ({type(exc).__name__}). Continue with the lab; "
+            "agent execution does not require tracing. Check TRACE_BACKEND and its "
+            "settings in .env and the optional tracing packages (uv pip install -e '.[docs]'). "
+            "Use TRACE_BACKEND=console for local output or none to skip tracing, "
+            "then restart the kernel and run all cells."
+        )
+        return "none"
+
+
+def _configure_tracing(backend: str, *, enable_sensitive_data: bool) -> str:
+    """Configure once; the public wrapper handles optional setup failures."""
+    if backend not in SUPPORTED_TRACE_BACKENDS:
+        raise ValueError(f"Unknown TRACE_BACKEND={backend!r}.")
+    from agent_framework.observability import configure_otel_providers
+    from agent_framework.observability import enable_instrumentation
+
+    enable_instrumentation(enable_sensitive_data=enable_sensitive_data, force=True)
 
     # --- console: spans print inline, no server needed -------------------------
     if backend == "console":
@@ -109,7 +166,7 @@ def setup_tracing(backend: str | None = None, *, enable_sensitive_data: bool = T
         return backend
 
     # --- Phoenix: open source, runs locally -----------------------------------
-    # `uvx phoenix serve` → UI on :6006, OTLP/HTTP on :6006/v1/traces.
+    # `uvx arize-phoenix serve` → UI on :6006, OTLP/HTTP on :6006/v1/traces.
     #
     # Agent Framework emits raw OTel GenAI spans (``gen_ai.*``), but Phoenix's UI
     # renders OpenInference ones (``llm.*`` / ``tool.*``), so each span has to be

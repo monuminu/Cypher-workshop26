@@ -5,7 +5,10 @@ from _nbbuild import code, md, write_notebook
 PREAMBLE = """\
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path.cwd().parents[1]))
-from workshop_utils import get_chat_client
+from workshop_utils import get_chat_client, setup_tracing
+
+# Optional: a tracing setup failure never blocks the exercises.
+trace_backend = setup_tracing()
 from agent_framework import Agent"""
 
 cells = [
@@ -34,7 +37,12 @@ engineering** is the discipline of deciding what goes in that window each turn:
 
 ![Context engineering](../../assets/context-engineering.png)"""
     ),
-    md("## 1. Setup"),
+    md("""## 1. Setup
+
+Tracing uses the same `.env` settings as [M1](01-first-agent.ipynb). Run this
+setup even in a fresh kernel; if tracing is unavailable, continue with the lab.
+Compare separate conversation turns and inspect the messages supplied to the model.
+Use your configured trace viewer or console output; allow a few seconds for export."""),
     code(PREAMBLE),
     md(
         """\

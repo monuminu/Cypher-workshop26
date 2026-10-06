@@ -5,7 +5,10 @@ from _nbbuild import code, md, write_notebook
 PREAMBLE = """\
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path.cwd().parents[1]))
-from workshop_utils import get_chat_client
+from workshop_utils import get_chat_client, setup_tracing
+
+# Optional: a tracing setup failure never blocks the exercises.
+trace_backend = setup_tracing()
 from agent_framework import Agent, tool
 from typing import Annotated
 from pydantic import Field"""
@@ -18,7 +21,7 @@ cells = [
 > **Goal:** see *inside* an agent in production — trace what it does, track token
 > usage, and add guardrails — with **OpenTelemetry** and **middleware**.
 >
-> **You'll use:** `@chat_middleware`, `configure_otel_providers`, `get_tracer`.
+> **You'll use:** `@chat_middleware`, `setup_tracing`, `get_tracer`.
 
 ---
 
@@ -28,7 +31,12 @@ isn't enough. You need **observability** (what happened?) and **control points**
 
 ![Observability](../../assets/observability.png)"""
     ),
-    md("## 1. Setup"),
+    md("""## 1. Setup
+
+Tracing uses the same `.env` settings as [M1](01-first-agent.ipynb). Run this
+setup even in a fresh kernel; if tracing is unavailable, continue with the lab.
+Inspect the weather-tool and middleware runs before adding a custom span in section 4.
+Use your configured trace viewer or console output; allow a few seconds for export."""),
     code(PREAMBLE),
     md(
         """\
@@ -115,78 +123,29 @@ await guarded.run("My password is hunter2, store it")        # blocked by the gu
     ),
     md(
         """\
-## 4. OpenTelemetry tracing
+## 4. Add a custom scenario span
 
-Middleware gives you *hooks*; **OpenTelemetry** gives you *end-to-end traces* —
-every model call, tool call, and token count.
+Tracing has been available since **[M1 · Your First Agent](01-first-agent.ipynb)**
+and is enabled in this notebook's setup, including the middleware examples above.
+Revisit M1 for backend choices and setup instructions.
 
-Agent Framework emits standard **OpenTelemetry GenAI** spans, so any OTLP backend
-can read them. Pick one with a single variable, `TRACE_BACKEND`, in your `.env`:
-
-| `TRACE_BACKEND` | What it is | Cost / setup |
-|:--|:--|:--|
-| `console` *(default)* | Spans print inline in the notebook | none |
-| `phoenix` | [Arize Phoenix](https://github.com/Arize-ai/phoenix) — open source, **runs on your laptop** | `uvx phoenix serve` |
-| `langfuse` | [Langfuse](https://langfuse.com) Cloud (or self-hosted) — hosted UI | free tier + keys |
-| `otlp` | Any other OTLP/HTTP collector (Jaeger, Aspire, Tempo, …) | your own |
-
-The notebook code below is **identical** for all of them — `setup_tracing()` reads
-the variable and wires the right exporter, the same way `get_chat_client()` reads
-`MODEL_PROVIDER`."""
-    ),
-    md(
-        """\
-### Option A — Phoenix, locally (recommended for this lab)
-
-Phoenix is open source and self-contained. Run it in a **separate terminal** —
-`uvx` gives it its own environment, so its OpenTelemetry pins can't collide with
-the workshop's:
-
-```bash
-uvx phoenix serve
-# or, with Docker:
-# docker run -p 6006:6006 -p 4317:4317 arizephoenix/phoenix:latest
-```
-
-Open **<http://localhost:6006>**, then set in your `.env`:
-
-```bash
-TRACE_BACKEND=phoenix
-```
-
-Nothing leaves your machine.
-
-### Option B — Langfuse Cloud
-
-Sign up at **<https://cloud.langfuse.com>** (free tier), create a project, and
-copy the keys from *Settings → API Keys* into your `.env`:
-
-```bash
-TRACE_BACKEND=langfuse
-LANGFUSE_PUBLIC_KEY="pk-lf-..."
-LANGFUSE_SECRET_KEY="sk-lf-..."
-LANGFUSE_HOST="https://cloud.langfuse.com"   # US: https://us.cloud.langfuse.com
-```
-
-Traces show up under *Tracing → Traces*. Note that prompts and completions are
-sent to a hosted service — fine for workshop data, think twice for real user data.
-
-### Option C — console
-
-Change nothing. Spans print below the cell."""
+Middleware gives you control points; a **custom parent span** groups an entire
+scenario so you can inspect the model calls and tools together. The example below
+adds `Scenario: trip planning` around an agent run. If tracing is unavailable or
+disabled, `nullcontext()` lets the same agent call execute without that span."""
     ),
     code(
         '''\
-from workshop_utils import setup_tracing, current_trace_backend
+from contextlib import nullcontext
 
-# Reads TRACE_BACKEND from .env — or pass one explicitly: setup_tracing("phoenix")
-setup_tracing()
-print("backend:", current_trace_backend())'''
-    ),
-    code(
-        '''\
-from agent_framework.observability import get_tracer
-from opentelemetry.trace import SpanKind
+scenario_span = nullcontext()
+if trace_backend != "none":
+    from agent_framework.observability import get_tracer
+    from opentelemetry.trace import SpanKind
+
+    scenario_span = get_tracer().start_as_current_span(
+        "Scenario: trip planning", kind=SpanKind.CLIENT
+    )
 
 traced_agent = Agent(
     client=get_chat_client(),
@@ -196,18 +155,19 @@ traced_agent = Agent(
 )
 
 # Your own span wraps the agent's spans, so the whole scenario is one trace.
-with get_tracer().start_as_current_span("Scenario: trip planning", kind=SpanKind.CLIENT):
+with scenario_span:
     answer = await traced_agent.run("What's the weather in Kyoto, and name one fact about the city.")
 print("Answer:", answer)'''
     ),
     md(
         """\
-!!! success "Now go look at the trace"
+!!! success "If tracing is active, inspect the scenario"
     - **Phoenix** → <http://localhost:6006> — you'll see `Scenario: trip planning`
       with the model call, the `get_weather` tool call, and token counts nested
       underneath.
     - **Langfuse** → your project's *Tracing* tab.
-    - **console** → scroll up; the spans printed above.
+    - **console** → scroll up; allow a few seconds for export.
+    - **Tracing unavailable/off** → continue; the answer above still executes.
 
     This is the difference between "the agent answered" and "here is exactly what
     the agent did, how long each step took, and what it cost.\""""
@@ -241,11 +201,11 @@ print("Answer:", answer)'''
    grand total at the end.
 2. Make `block_secrets` redact (replace the banned word with `***`) and *continue*
    instead of blocking.
-3. Run **Phoenix** locally (`uvx phoenix serve`), set `TRACE_BACKEND=phoenix`, and
-   re-run section 4. Find the `get_weather` tool span — how long did it take, and
-   how many tokens did the run cost in total?
-4. Swap to `TRACE_BACKEND=langfuse` and compare the two UIs. Which one would you
-   put in front of a non-engineer?
+3. Run **Phoenix** locally (`uvx arize-phoenix serve`), set `TRACE_BACKEND=phoenix`, and
+   restart the kernel. Run all cells and find the `get_weather` tool span.
+   How long did it take, and how many tokens did the run cost in total?
+4. Optionally swap to `TRACE_BACKEND=langfuse`, restart the kernel, and compare
+   the two UIs. Which one would you put in front of a non-engineer?
 
 ---
 

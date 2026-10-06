@@ -6,7 +6,10 @@ PREAMBLE = """\
 import sys, pathlib, warnings
 sys.path.insert(0, str(pathlib.Path.cwd().parents[1]))
 warnings.filterwarnings("ignore")
-from workshop_utils import get_chat_client
+from workshop_utils import get_chat_client, setup_tracing
+
+# Optional: a tracing setup failure never blocks the exercises.
+trace_backend = setup_tracing()
 from agent_framework import Agent, tool
 from typing import Annotated
 from pydantic import Field"""
@@ -27,7 +30,12 @@ You've built every piece. The capstone wires a few of them together into a tiny
 **trip-planning assistant**, then points you at the hosting options for taking an
 agent to production."""
     ),
-    md("## 1. Setup"),
+    md("""## 1. Setup
+
+Tracing uses the same `.env` settings as [M1](01-first-agent.ipynb). Run this
+setup even in a fresh kernel; if tracing is unavailable, continue with the lab.
+Inspect the trip-planning run and follow its weather and currency tool calls.
+Use your configured trace viewer or console output; allow a few seconds for export."""),
     code(PREAMBLE),
     md(
         """\

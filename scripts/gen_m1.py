@@ -8,9 +8,9 @@ cells = [
 # M1 · Your First Agent
 
 > **Goal:** create and run an agent, understand the *agent loop*, and see the
-> difference between a streaming and a non-streaming response.
+> difference between streaming and non-streaming responses, and inspect a trace.
 >
-> **You'll use:** `get_chat_client()` (the provider switcher) and `Agent`.
+> **You'll use:** `get_chat_client()` (the provider switcher), `setup_tracing()`, and `Agent`.
 
 ---
 
@@ -32,13 +32,89 @@ providers — you change one line in `.env`.**
 
 > If this import fails, revisit **[Setup](../setup.md)**."""
     ),
+    md("""### Tracing from your first agent (optional)
+
+A **trace** records one run; its **spans** show the agent, model calls, tool calls,
+and their timing. We enable it before creating the client so you can inspect your
+very first answer and keep using traces throughout Modules 2–8.
+
+The setup cell below calls `setup_tracing()` using `TRACE_BACKEND` from `.env`.
+The default is `console`: no tracing server or account is needed. Choose a UI
+below if you want to browse the nested spans.
+
+| `TRACE_BACKEND` | Where to look |
+|:--|:--|
+| `console` (default) | Notebook output; allow a few seconds for spans to arrive |
+| `phoenix` | Your Phoenix UI, locally at <http://localhost:6006> by default |
+| `langfuse` | Your project's Tracing tab |
+| `otlp` | Your configured collector's trace viewer |
+| `none` | Tracing disabled; all exercises still run |
+
+**Tracing is optional.** If setup fails, the helper prints guidance and continues
+without tracing. If a collector is unavailable or rejects your credentials,
+background export may report errors, but agent execution can continue. Use
+`TRACE_BACKEND=console` or `TRACE_BACKEND=none` to continue without that service.
+After changing `.env`, restart the kernel and run all cells. Each notebook has
+its own setup, so you can open any module in a fresh kernel.
+
+Prompts and responses are included for these workshop exercises. Use
+`setup_tracing(enable_sensitive_data=False)` if you do not want them captured.
+
+### Option A — Phoenix, locally (recommended for this lab)
+
+Phoenix is open source and self-contained. Run it in a **separate terminal** —
+`uvx` gives it its own environment, so its OpenTelemetry pins can't collide with
+the workshop's:
+
+```bash
+uvx arize-phoenix serve
+# or, with Docker:
+# docker run -p 6006:6006 -p 4317:4317 arizephoenix/phoenix:latest
+```
+
+If you use a custom Python package index, put `--index-url` **before** the
+package name. Replace the dummy URL below with your own index URL:
+
+```bash
+uvx --index-url https://packages.example.com/pypi/simple arize-phoenix serve
+```
+
+Open **<http://localhost:6006>**, then set in your `.env`:
+
+```bash
+TRACE_BACKEND=phoenix
+```
+
+With local Phoenix, traces stay on your machine. Your model provider is configured separately.
+
+### Option B — Langfuse Cloud
+
+Sign up at **<https://cloud.langfuse.com>** (free tier), create a project, and
+copy the keys from *Settings → API Keys* into your `.env`:
+
+```bash
+TRACE_BACKEND=langfuse
+LANGFUSE_PUBLIC_KEY="pk-lf-..."
+LANGFUSE_SECRET_KEY="sk-lf-..."
+LANGFUSE_HOST="https://cloud.langfuse.com"   # US: https://us.cloud.langfuse.com
+```
+
+Traces show up under *Tracing → Traces*. Note that prompts and completions are
+sent to a hosted service — fine for workshop data, think twice for real user data.
+
+### Option C — console
+
+Change nothing. Spans print below the cell."""),
     code(
         """\
 # Make the workshop_utils package importable when running from docs/modules/.
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path.cwd().parents[1]))  # repo root
 
-from workshop_utils import get_chat_client, current_provider
+from workshop_utils import get_chat_client, current_provider, setup_tracing
+
+# Optional: a tracing setup failure never blocks the exercises.
+trace_backend = setup_tracing()
 
 print("Model provider:", current_provider())
 client = get_chat_client()
@@ -74,6 +150,15 @@ It returns the *complete* response once the agent is done."""
 result = await agent.run("What is the capital of France?")
 print(result)"""
     ),
+    md("""### Look at your first trace
+
+If tracing is active, open the viewer chosen above (or inspect the console output)
+and find the `HelloAgent` run for the France question. Expand it to find the model
+call. Inspect its input and output, duration, and token usage when the provider
+reports it. Compare this with the single model step described below.
+
+After the streaming example, find its separate run and compare the two traces.
+No trace available? Continue with the exercises; tracing is not a prerequisite."""),
     md(
         """\
 !!! note "What just happened?"

@@ -59,7 +59,7 @@ docs = [
     "mkdocs-material>=9.5",
     "mkdocs-jupyter>=0.25",
     "pymdown-extensions>=10.7",
-    # M7 (Operationalizing) uses OpenTelemetry tracing. agent-framework-core only
+    # All modules use optional OpenTelemetry tracing from M1. agent-framework-core only
     # declares opentelemetry-api; the SDK + an OTLP exporter must be added explicitly
     # so `configure_otel_providers(...)` works after the documented install.
     "opentelemetry-sdk>=1.39,<2",
@@ -75,8 +75,8 @@ docs = [
 
 # NOTE: Phoenix is deliberately NOT an extra here. `arize-phoenix` pins its own
 # OpenTelemetry versions and would fight the pins above. Run it out-of-process
-# instead — `uvx phoenix serve`, or the Docker image — and point
-# TRACE_BACKEND=phoenix at it. See docs/modules/07-operationalize.ipynb.
+# instead — `uvx arize-phoenix serve`, or the Docker image — and point
+# TRACE_BACKEND=phoenix at it. See docs/modules/01-first-agent.ipynb.
 
 [tool.uv]
 # Prefer stable releases for the agent-framework providers. `if-necessary-or-explicit`

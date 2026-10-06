@@ -84,10 +84,6 @@ EXPECTATIONS: dict[str, list[tuple[str, str]]] = {
     "07-operationalize": [
         ("middleware reports token usage", r"\[usage\].*total_token_count"),
         ("guard middleware blocks the request", r"\[guard\] blocked"),
-        # setup_tracing() must actually wire an exporter — whichever TRACE_BACKEND
-        # is set. Without this the tracing section can run green while exporting
-        # nowhere, which is exactly the failure a participant can't see.
-        ("tracing backend is configured", r"Tracing (→|->) \w+"),
     ],
 }
 
@@ -122,11 +118,16 @@ def run_one(path: Path, timeout: int) -> tuple[bool, list[str]]:
         return False, [f"execution failed: {type(exc).__name__}: {exc}"]
 
     text = collect_output(nb)
+    # Tracing is optional in every module. Both successful setup and an explicit
+    # disabled/unavailable status are valid; a missing setup cell is not.
+    tracing_status = r"Tracing (?:(?:→|->) \w+|disabled|unavailable)"
     missing = [
         f"expectation unmet: {label}  (no match for /{pattern}/)"
         for label, pattern in EXPECTATIONS.get(path.stem, [])
         if not re.search(pattern, text, re.S)
     ]
+    if not re.search(tracing_status, text):
+        missing.append("expectation unmet: tracing setup reports its status")
     return not missing, missing
 
 

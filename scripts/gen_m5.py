@@ -6,7 +6,10 @@ PREAMBLE = """\
 import sys, pathlib, warnings
 sys.path.insert(0, str(pathlib.Path.cwd().parents[1]))
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-from workshop_utils import get_chat_client
+from workshop_utils import get_chat_client, setup_tracing
+
+# Optional: a tracing setup failure never blocks the exercises.
+trace_backend = setup_tracing()
 from agent_framework import Agent"""
 
 cells = [
@@ -42,7 +45,12 @@ into a **typed workflow graph** with the same `WorkflowBuilder` you'd use for
 plain functions. Sections 2–4 build the shapes by hand so you can see the
 mechanics; section 5 shows the packaged builders that do it for you."""
     ),
-    md("## 1. Setup"),
+    md("""## 1. Setup
+
+Tracing uses the same `.env` settings as [M1](01-first-agent.ipynb). Run this
+setup even in a fresh kernel; if tracing is unavailable, continue with the lab.
+Follow a multi-agent run and compare the spans from its participating agents.
+Use your configured trace viewer or console output; allow a few seconds for export."""),
     code(PREAMBLE),
     md(
         """\

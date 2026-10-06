@@ -96,19 +96,26 @@ az login
 
 ## 4b. (Optional) Pick a tracing backend
 
-Module 7 traces what your agent does. One variable, `TRACE_BACKEND`, decides
-where the traces go — the notebook code is the same either way. You can leave
-this alone and decide during the lab.
+Tracing starts in **[Module 1](modules/01-first-agent.ipynb)** and is initialized
+in every notebook, including when opened in a fresh kernel. One variable,
+`TRACE_BACKEND`, decides where traces go. Leave it at `console` to see spans in
+notebook output without a server or account.
+
+Tracing is optional: setup failures print guidance and let the exercises continue.
+If a remote collector is unavailable, export errors do not block agent execution.
+Use `TRACE_BACKEND=none` to skip tracing, or `console` to avoid a remote backend.
+After changing `.env`, restart the kernel and run all cells.
 
 | `TRACE_BACKEND` | What it is | What you need |
 |:--|:--|:--|
 | `console` *(default)* | Spans print inline in the notebook | nothing |
-| `phoenix` | [Arize Phoenix](https://github.com/Arize-ai/phoenix) — open source, runs locally | `uvx phoenix serve` |
+| `phoenix` | [Arize Phoenix](https://github.com/Arize-ai/phoenix) — open source, runs locally | `uvx arize-phoenix serve` |
 | `langfuse` | [Langfuse](https://langfuse.com) Cloud or self-hosted | free account + API keys |
 | `otlp` | Any other OTLP/HTTP collector (Jaeger, Aspire, Tempo…) | your own endpoint |
+| `none` | Tracing disabled; all labs still run | nothing |
 
 !!! tip "Run Phoenix out-of-process"
-    Start it with `uvx phoenix serve` (or Docker) rather than installing
+    Start it with `uvx arize-phoenix serve` (or Docker) rather than installing
     `arize-phoenix` into the workshop virtualenv — Phoenix pins its own
     OpenTelemetry versions and will fight this repo's pins. The UI is at
     <http://localhost:6006> and nothing leaves your machine.
